@@ -8,7 +8,7 @@ const SplitWindow = () => {
     const styleA = { background: '#eee' };
     const styleB = { background: '#aaa4ba' };
     const styleC = { background: '#000' };
-    const styleD = { padding: '2em', fontStyle: 'italic' };
+    const styleD = { background: '#ccc' };
 
     return (
       <SplitPane
@@ -17,10 +17,13 @@ const SplitWindow = () => {
            className="primary"
            pane1Style={styleA}
            resizerStyle={styleC}>
-           <div />
+           <div>...</div>
            <SplitPane split="horizontal" paneStyle={styleD} pane2Style={styleB}>
-               <div>Hello...</div>
+                <div>
+                 <textarea id="mytextarea">some text</textarea>
+                </div>
                <div> ...world.</div>
+
            </SplitPane>
        </SplitPane>
     );

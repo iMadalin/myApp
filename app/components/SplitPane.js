@@ -172,7 +172,7 @@ SplitPane.propTypes = {
 
 SplitPane.defaultProps = {
     split: 'vertical',
-    minSize: '80%',
+    minSize: '90%',
     allowResize: false,
     prefixer: new Prefixer({ userAgent: USER_AGENT }),
     primary: 'first',

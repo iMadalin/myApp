@@ -69,7 +69,7 @@
 	    var styleA = { background: '#eee' };
 	    var styleB = { background: '#aaa4ba' };
 	    var styleC = { background: '#000' };
-	    var styleD = { padding: '2em', fontStyle: 'italic' };
+	    var styleD = { background: '#ccc' };
 
 	    return _react2.default.createElement(
 	        _SplitPane2.default,
@@ -79,14 +79,22 @@
 	            className: 'primary',
 	            pane1Style: styleA,
 	            resizerStyle: styleC },
-	        _react2.default.createElement('div', null),
+	        _react2.default.createElement(
+	            'div',
+	            null,
+	            '...'
+	        ),
 	        _react2.default.createElement(
 	            _SplitPane2.default,
 	            { split: 'horizontal', paneStyle: styleD, pane2Style: styleB },
 	            _react2.default.createElement(
 	                'div',
 	                null,
-	                'Hello...'
+	                _react2.default.createElement(
+	                    'textarea',
+	                    { id: 'mytextarea' },
+	                    'some text'
+	                )
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -20000,7 +20008,7 @@
 
 	SplitPane.defaultProps = {
 	    split: 'vertical',
-	    minSize: '80%',
+	    minSize: '90%',
 	    allowResize: false,
 	    prefixer: new _inlineStylePrefixer2.default({ userAgent: USER_AGENT }),
 	    primary: 'first'
