@@ -5,7 +5,6 @@
   "scripts": {
     "test": "npm test",
     "start": "electron .",
-    "watch": "watchify app/app.js -t babelify -o public/js/bundle.js --debug --verbose",
     "build": "electron-packager . myApp"
   },
 
@@ -28,6 +27,9 @@
     "react": "^0.14.8",
     "react-dom": "^0.14.7",
 	"inline-style-prefixer": "^2.0.5",
-	"react-style-proptype": "^2.0.1"
+	"react-style-proptype": "^2.0.1",
+  "react-text-input": "^0.0.8",
+  "autosize": "^3.0.20",
+  "react-file-reader-input": "^1.1.0"
   }
 }

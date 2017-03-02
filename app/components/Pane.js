@@ -32,7 +32,11 @@ class Pane extends Component {
         }
 
         return (
-            <div className={classes.join(' ')} style={this.props.prefixer.prefix(style)}>{this.props.children}</div>
+            <div
+              className={classes.join(' ')} style={this.props.prefixer.prefix(style)}
+              >
+              {this.props.children}
+            </div>
         );
     }
 }

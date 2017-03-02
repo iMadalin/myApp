@@ -63,44 +63,43 @@
 
 	var _SplitPane2 = _interopRequireDefault(_SplitPane);
 
+	var _OpenFileButton = __webpack_require__(200);
+
+	var _OpenFileButton2 = _interopRequireDefault(_OpenFileButton);
+
+	var _Textarea = __webpack_require__(201);
+
+	var _Textarea2 = _interopRequireDefault(_Textarea);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var SplitWindow = function SplitWindow() {
 	    var styleA = { background: '#eee' };
-	    var styleB = { background: '#aaa4ba' };
-	    var styleC = { background: '#000' };
-	    var styleD = { background: '#ccc' };
-
+	    var styleB = { background: 'black' };
+	    var styleC = { background: '#606080' };
+	    var styleD = { background: 'black' };
 	    return _react2.default.createElement(
 	        _SplitPane2.default,
 	        {
 	            split: 'vertical',
-	            minSize: 300, maxSize: 300,
+	            minSize: 50, maxSize: 300, defaultSize: 100,
 	            className: 'primary',
 	            pane1Style: styleA,
-	            resizerStyle: styleC },
-	        _react2.default.createElement(
-	            'div',
-	            null,
-	            '...'
-	        ),
+	            resizerStyle: styleB },
+	        _react2.default.createElement('div', null),
 	        _react2.default.createElement(
 	            _SplitPane2.default,
-	            { split: 'horizontal', paneStyle: styleD, pane2Style: styleB },
+	            {
+	                split: 'horizontal',
+	                paneStyle: styleC,
+	                pane2Style: styleD },
 	            _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(
-	                    'textarea',
-	                    { id: 'mytextarea' },
-	                    'some text'
-	                )
+	                _react2.default.createElement(_OpenFileButton2.default, null),
+	                _react2.default.createElement(_Textarea2.default, null)
 	            ),
-	            _react2.default.createElement(
-	                'div',
-	                null,
-	                ' ...world.'
-	            )
+	            _react2.default.createElement('div', null)
 	        )
 	    );
 	};
@@ -19833,6 +19832,10 @@
 
 	var _Pane2 = _interopRequireDefault(_Pane);
 
+	var _Resizer = __webpack_require__(199);
+
+	var _Resizer2 = _interopRequireDefault(_Resizer);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -19842,6 +19845,17 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Safari/537.2';
+
+	function unFocus(document, window) {
+	    if (document.selection) {
+	        document.selection.empty();
+	    } else {
+	        try {
+	            window.getSelection().removeAllRanges();
+	            // eslint-disable-next-line no-empty
+	        } catch (e) {}
+	    }
+	}
 
 	var SplitPane = function (_Component) {
 	    _inherits(SplitPane, _Component);
@@ -19857,6 +19871,12 @@
 
 	        var _this = _possibleConstructorReturn(this, (_ref = SplitPane.__proto__ || Object.getPrototypeOf(SplitPane)).call.apply(_ref, [this].concat(args)));
 
+	        _this.onMouseDown = _this.onMouseDown.bind(_this);
+	        _this.onTouchStart = _this.onTouchStart.bind(_this);
+	        _this.onMouseMove = _this.onMouseMove.bind(_this);
+	        _this.onTouchMove = _this.onTouchMove.bind(_this);
+	        _this.onMouseUp = _this.onMouseUp.bind(_this);
+
 	        _this.state = {
 	            active: false,
 	            resized: false
@@ -19868,11 +19888,118 @@
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            this.setSize(this.props, this.state);
+	            document.addEventListener('mouseup', this.onMouseUp);
+	            document.addEventListener('mousemove', this.onMouseMove);
+	            document.addEventListener('touchmove', this.onTouchMove);
 	        }
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(props) {
 	            this.setSize(props, this.state);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            document.removeEventListener('mouseup', this.onMouseUp);
+	            document.removeEventListener('mousemove', this.onMouseMove);
+	            document.removeEventListener('touchmove', this.onTouchMove);
+	        }
+	    }, {
+	        key: 'onMouseDown',
+	        value: function onMouseDown(event) {
+	            var eventWithTouches = Object.assign({}, event, { touches: [{ clientX: event.clientX, clientY: event.clientY }] });
+	            this.onTouchStart(eventWithTouches);
+	        }
+	    }, {
+	        key: 'onTouchStart',
+	        value: function onTouchStart(event) {
+	            if (this.props.allowResize) {
+	                unFocus(document, window);
+	                var position = this.props.split === 'vertical' ? event.touches[0].clientX : event.touches[0].clientY;
+	                if (typeof this.props.onDragStarted === 'function') {
+	                    this.props.onDragStarted();
+	                }
+	                this.setState({
+	                    active: true,
+	                    position: position
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'onMouseMove',
+	        value: function onMouseMove(event) {
+	            var eventWithTouches = Object.assign({}, event, { touches: [{ clientX: event.clientX, clientY: event.clientY }] });
+	            this.onTouchMove(eventWithTouches);
+	        }
+	    }, {
+	        key: 'onTouchMove',
+	        value: function onTouchMove(event) {
+	            if (this.props.allowResize) {
+	                if (this.state.active) {
+	                    unFocus(document, window);
+	                    var isPrimaryFirst = this.props.primary === 'first';
+	                    var ref = isPrimaryFirst ? this.pane1 : this.pane2;
+	                    if (ref) {
+	                        var node = _reactDom2.default.findDOMNode(ref);
+
+	                        if (node.getBoundingClientRect) {
+	                            var width = node.getBoundingClientRect().width;
+	                            var height = node.getBoundingClientRect().height;
+	                            var current = this.props.split === 'vertical' ? event.touches[0].clientX : event.touches[0].clientY;
+	                            var size = this.props.split === 'vertical' ? width : height;
+	                            var position = this.state.position;
+	                            var newPosition = isPrimaryFirst ? position - current : current - position;
+
+	                            var maxSize = this.props.maxSize;
+	                            if (this.props.maxSize !== undefined && this.props.maxSize <= 0) {
+	                                var splPane = this.splitPane;
+	                                if (this.props.split === 'vertical') {
+	                                    maxSize = splPane.getBoundingClientRect().width + this.props.maxSize;
+	                                } else {
+	                                    maxSize = splPane.getBoundingClientRect().height + this.props.maxSize;
+	                                }
+	                            }
+
+	                            var newSize = size - newPosition;
+
+	                            if (newSize < this.props.minSize) {
+	                                newSize = this.props.minSize;
+	                            } else if (this.props.maxSize !== undefined && newSize > maxSize) {
+	                                newSize = maxSize;
+	                            } else {
+	                                this.setState({
+	                                    position: current,
+	                                    resized: true
+	                                });
+	                            }
+
+	                            if (this.props.onChange) {
+	                                this.props.onChange(newSize);
+	                            }
+	                            this.setState({
+	                                draggedSize: newSize
+	                            });
+	                            ref.setState({
+	                                size: newSize
+	                            });
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'onMouseUp',
+	        value: function onMouseUp() {
+	            if (this.props.allowResize) {
+	                if (this.state.active) {
+	                    if (typeof this.props.onDragFinished === 'function') {
+	                        this.props.onDragFinished(this.state.draggedSize);
+	                    }
+	                    this.setState({
+	                        active: false
+	                    });
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'setSize',
@@ -19963,6 +20090,19 @@
 	                    },
 	                    children[0]
 	                ),
+	                _react2.default.createElement(_Resizer2.default, {
+	                    ref: function ref(node) {
+	                        _this2.resizer = node;
+	                    },
+	                    key: 'resizer',
+	                    className: disabledClass,
+	                    resizerClassName: this.props.resizerClassName,
+	                    onMouseDown: this.onMouseDown,
+	                    onTouchStart: this.onTouchStart,
+	                    onTouchEnd: this.onMouseUp,
+	                    style: this.props.resizerStyle || {},
+	                    split: split
+	                }),
 	                _react2.default.createElement(
 	                    _Pane2.default,
 	                    {
@@ -19991,25 +20131,26 @@
 	    // eslint-disable-next-line react/no-unused-prop-types
 	    defaultSize: _react.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.number]),
 	    size: _react.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.number]),
-
+	    allowResize: _react.PropTypes.bool,
 	    split: _react.PropTypes.oneOf(['vertical', 'horizontal']),
-
+	    onDragStarted: _react.PropTypes.func,
+	    onDragFinished: _react.PropTypes.func,
 	    onChange: _react.PropTypes.func,
 	    prefixer: _react.PropTypes.instanceOf(_inlineStylePrefixer2.default).isRequired,
 	    style: _reactStyleProptype2.default,
-
+	    resizerStyle: _reactStyleProptype2.default,
 	    paneStyle: _reactStyleProptype2.default,
 	    pane1Style: _reactStyleProptype2.default,
 	    pane2Style: _reactStyleProptype2.default,
 	    className: _react.PropTypes.string,
-
+	    resizerClassName: _react.PropTypes.string,
 	    children: _react.PropTypes.arrayOf(_react.PropTypes.node).isRequired
 	};
 
 	SplitPane.defaultProps = {
 	    split: 'vertical',
 	    minSize: '90%',
-	    allowResize: false,
+	    allowResize: true,
 	    prefixer: new _inlineStylePrefixer2.default({ userAgent: USER_AGENT }),
 	    primary: 'first'
 	};
@@ -23790,7 +23931,9 @@
 
 	            return _react2.default.createElement(
 	                'div',
-	                { className: classes.join(' '), style: this.props.prefixer.prefix(style) },
+	                {
+	                    className: classes.join(' '), style: this.props.prefixer.prefix(style)
+	                },
 	                this.props.children
 	            );
 	        }
@@ -23813,6 +23956,514 @@
 	};
 
 	exports.default = Pane;
+
+/***/ },
+/* 199 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _inlineStylePrefixer = __webpack_require__(161);
+
+	var _inlineStylePrefixer2 = _interopRequireDefault(_inlineStylePrefixer);
+
+	var _reactStyleProptype = __webpack_require__(196);
+
+	var _reactStyleProptype2 = _interopRequireDefault(_reactStyleProptype);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Safari/537.2';
+
+	var Resizer = function (_Component) {
+	    _inherits(Resizer, _Component);
+
+	    function Resizer() {
+	        _classCallCheck(this, Resizer);
+
+	        return _possibleConstructorReturn(this, (Resizer.__proto__ || Object.getPrototypeOf(Resizer)).apply(this, arguments));
+	    }
+
+	    _createClass(Resizer, [{
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            var _props = this.props,
+	                split = _props.split,
+	                className = _props.className,
+	                resizerClassName = _props.resizerClassName;
+
+	            var classes = [resizerClassName, split, className];
+	            return _react2.default.createElement('span', {
+	                className: classes.join(' '),
+	                style: this.props.prefixer.prefix(this.props.style) || {},
+	                onMouseDown: function onMouseDown(event) {
+	                    _this2.props.onMouseDown(event);
+	                },
+	                onTouchStart: function onTouchStart(event) {
+	                    event.preventDefault();
+	                    _this2.props.onTouchStart(event);
+	                },
+	                onTouchEnd: function onTouchEnd(event) {
+	                    event.preventDefault();
+	                    _this2.props.onTouchEnd(event);
+	                }
+	            });
+	        }
+	    }]);
+
+	    return Resizer;
+	}(_react.Component);
+
+	Resizer.propTypes = {
+	    onMouseDown: _react.PropTypes.func.isRequired,
+	    onTouchStart: _react.PropTypes.func.isRequired,
+	    onTouchEnd: _react.PropTypes.func.isRequired,
+	    prefixer: _react.PropTypes.instanceOf(_inlineStylePrefixer2.default).isRequired,
+	    split: _react.PropTypes.oneOf(['vertical', 'horizontal']),
+	    className: _react.PropTypes.string.isRequired,
+	    resizerClassName: _react.PropTypes.string.isRequired,
+	    style: _reactStyleProptype2.default
+	};
+
+	Resizer.defaultProps = {
+	    prefixer: new _inlineStylePrefixer2.default({ userAgent: USER_AGENT }),
+	    resizerClassName: 'Resizer'
+	};
+
+	exports.default = Resizer;
+
+/***/ },
+/* 200 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var OpenFileButton = function (_Component) {
+	    _inherits(OpenFileButton, _Component);
+
+	    function OpenFileButton() {
+	        _classCallCheck(this, OpenFileButton);
+
+	        return _possibleConstructorReturn(this, (OpenFileButton.__proto__ || Object.getPrototypeOf(OpenFileButton)).apply(this, arguments));
+	    }
+
+	    _createClass(OpenFileButton, [{
+	        key: "render",
+	        value: function render() {
+
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement("input", { type: "file", id: "file" })
+	            );
+	        }
+	    }]);
+
+	    return OpenFileButton;
+	}(_react.Component);
+
+	exports.default = OpenFileButton;
+
+/***/ },
+/* 201 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _autosize = __webpack_require__(202);
+
+	var _autosize2 = _interopRequireDefault(_autosize);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TextArea = function (_Component) {
+	  _inherits(TextArea, _Component);
+
+	  function TextArea() {
+	    _classCallCheck(this, TextArea);
+
+	    return _possibleConstructorReturn(this, (TextArea.__proto__ || Object.getPrototypeOf(TextArea)).apply(this, arguments));
+	  }
+
+	  _createClass(TextArea, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.textarea.focus();
+	      (0, _autosize2.default)(this.textarea);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var textareaStyle = {
+	        width: 1600,
+	        border: 'none',
+	        resize: 'none',
+	        padding: "5px",
+	        background: "grey"
+	      };
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'openFile' },
+	        _react2.default.createElement('textarea', {
+	          style: textareaStyle,
+	          defaultValue: ''
+	        })
+	      );
+	    }
+	  }]);
+
+	  return TextArea;
+	}(_react.Component);
+
+	exports.default = TextArea;
+
+/***/ },
+/* 202 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+		Autosize 3.0.20
+		license: MIT
+		http://www.jacklmoore.com/autosize
+	*/
+	(function (global, factory) {
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports, module], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+			factory(exports, module);
+		} else {
+			var mod = {
+				exports: {}
+			};
+			factory(mod.exports, mod);
+			global.autosize = mod.exports;
+		}
+	})(this, function (exports, module) {
+		'use strict';
+
+		var map = typeof Map === "function" ? new Map() : (function () {
+			var keys = [];
+			var values = [];
+
+			return {
+				has: function has(key) {
+					return keys.indexOf(key) > -1;
+				},
+				get: function get(key) {
+					return values[keys.indexOf(key)];
+				},
+				set: function set(key, value) {
+					if (keys.indexOf(key) === -1) {
+						keys.push(key);
+						values.push(value);
+					}
+				},
+				'delete': function _delete(key) {
+					var index = keys.indexOf(key);
+					if (index > -1) {
+						keys.splice(index, 1);
+						values.splice(index, 1);
+					}
+				}
+			};
+		})();
+
+		var createEvent = function createEvent(name) {
+			return new Event(name, { bubbles: true });
+		};
+		try {
+			new Event('test');
+		} catch (e) {
+			// IE does not support `new Event()`
+			createEvent = function (name) {
+				var evt = document.createEvent('Event');
+				evt.initEvent(name, true, false);
+				return evt;
+			};
+		}
+
+		function assign(ta) {
+			if (!ta || !ta.nodeName || ta.nodeName !== 'TEXTAREA' || map.has(ta)) return;
+
+			var heightOffset = null;
+			var clientWidth = ta.clientWidth;
+			var cachedHeight = null;
+
+			function init() {
+				var style = window.getComputedStyle(ta, null);
+
+				if (style.resize === 'vertical') {
+					ta.style.resize = 'none';
+				} else if (style.resize === 'both') {
+					ta.style.resize = 'horizontal';
+				}
+
+				if (style.boxSizing === 'content-box') {
+					heightOffset = -(parseFloat(style.paddingTop) + parseFloat(style.paddingBottom));
+				} else {
+					heightOffset = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+				}
+				// Fix when a textarea is not on document body and heightOffset is Not a Number
+				if (isNaN(heightOffset)) {
+					heightOffset = 0;
+				}
+
+				update();
+			}
+
+			function changeOverflow(value) {
+				{
+					// Chrome/Safari-specific fix:
+					// When the textarea y-overflow is hidden, Chrome/Safari do not reflow the text to account for the space
+					// made available by removing the scrollbar. The following forces the necessary text reflow.
+					var width = ta.style.width;
+					ta.style.width = '0px';
+					// Force reflow:
+					/* jshint ignore:start */
+					ta.offsetWidth;
+					/* jshint ignore:end */
+					ta.style.width = width;
+				}
+
+				ta.style.overflowY = value;
+			}
+
+			function getParentOverflows(el) {
+				var arr = [];
+
+				while (el && el.parentNode && el.parentNode instanceof Element) {
+					if (el.parentNode.scrollTop) {
+						arr.push({
+							node: el.parentNode,
+							scrollTop: el.parentNode.scrollTop
+						});
+					}
+					el = el.parentNode;
+				}
+
+				return arr;
+			}
+
+			function resize() {
+				var originalHeight = ta.style.height;
+				var overflows = getParentOverflows(ta);
+				var docTop = document.documentElement && document.documentElement.scrollTop; // Needed for Mobile IE (ticket #240)
+
+				ta.style.height = 'auto';
+
+				var endHeight = ta.scrollHeight + heightOffset;
+
+				if (ta.scrollHeight === 0) {
+					// If the scrollHeight is 0, then the element probably has display:none or is detached from the DOM.
+					ta.style.height = originalHeight;
+					return;
+				}
+
+				ta.style.height = endHeight + 'px';
+
+				// used to check if an update is actually necessary on window.resize
+				clientWidth = ta.clientWidth;
+
+				// prevents scroll-position jumping
+				overflows.forEach(function (el) {
+					el.node.scrollTop = el.scrollTop;
+				});
+
+				if (docTop) {
+					document.documentElement.scrollTop = docTop;
+				}
+			}
+
+			function update() {
+				resize();
+
+				var styleHeight = Math.round(parseFloat(ta.style.height));
+				var computed = window.getComputedStyle(ta, null);
+				var actualHeight = Math.round(parseFloat(computed.height));
+
+				// The actual height not matching the style height (set via the resize method) indicates that
+				// the max-height has been exceeded, in which case the overflow should be set to visible.
+				if (actualHeight !== styleHeight) {
+					if (computed.overflowY !== 'visible') {
+						changeOverflow('visible');
+						resize();
+						actualHeight = Math.round(parseFloat(window.getComputedStyle(ta, null).height));
+					}
+				} else {
+					// Normally keep overflow set to hidden, to avoid flash of scrollbar as the textarea expands.
+					if (computed.overflowY !== 'hidden') {
+						changeOverflow('hidden');
+						resize();
+						actualHeight = Math.round(parseFloat(window.getComputedStyle(ta, null).height));
+					}
+				}
+
+				if (cachedHeight !== actualHeight) {
+					cachedHeight = actualHeight;
+					var evt = createEvent('autosize:resized');
+					try {
+						ta.dispatchEvent(evt);
+					} catch (err) {
+						// Firefox will throw an error on dispatchEvent for a detached element
+						// https://bugzilla.mozilla.org/show_bug.cgi?id=889376
+					}
+				}
+			}
+
+			var pageResize = function pageResize() {
+				if (ta.clientWidth !== clientWidth) {
+					update();
+				}
+			};
+
+			var destroy = (function (style) {
+				window.removeEventListener('resize', pageResize, false);
+				ta.removeEventListener('input', update, false);
+				ta.removeEventListener('keyup', update, false);
+				ta.removeEventListener('autosize:destroy', destroy, false);
+				ta.removeEventListener('autosize:update', update, false);
+
+				Object.keys(style).forEach(function (key) {
+					ta.style[key] = style[key];
+				});
+
+				map['delete'](ta);
+			}).bind(ta, {
+				height: ta.style.height,
+				resize: ta.style.resize,
+				overflowY: ta.style.overflowY,
+				overflowX: ta.style.overflowX,
+				wordWrap: ta.style.wordWrap
+			});
+
+			ta.addEventListener('autosize:destroy', destroy, false);
+
+			// IE9 does not fire onpropertychange or oninput for deletions,
+			// so binding to onkeyup to catch most of those events.
+			// There is no way that I know of to detect something like 'cut' in IE9.
+			if ('onpropertychange' in ta && 'oninput' in ta) {
+				ta.addEventListener('keyup', update, false);
+			}
+
+			window.addEventListener('resize', pageResize, false);
+			ta.addEventListener('input', update, false);
+			ta.addEventListener('autosize:update', update, false);
+			ta.style.overflowX = 'hidden';
+			ta.style.wordWrap = 'break-word';
+
+			map.set(ta, {
+				destroy: destroy,
+				update: update
+			});
+
+			init();
+		}
+
+		function destroy(ta) {
+			var methods = map.get(ta);
+			if (methods) {
+				methods.destroy();
+			}
+		}
+
+		function update(ta) {
+			var methods = map.get(ta);
+			if (methods) {
+				methods.update();
+			}
+		}
+
+		var autosize = null;
+
+		// Do nothing in Node.js environment and IE8 (or lower)
+		if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
+			autosize = function (el) {
+				return el;
+			};
+			autosize.destroy = function (el) {
+				return el;
+			};
+			autosize.update = function (el) {
+				return el;
+			};
+		} else {
+			autosize = function (el, options) {
+				if (el) {
+					Array.prototype.forEach.call(el.length ? el : [el], function (x) {
+						return assign(x, options);
+					});
+				}
+				return el;
+			};
+			autosize.destroy = function (el) {
+				if (el) {
+					Array.prototype.forEach.call(el.length ? el : [el], destroy);
+				}
+				return el;
+			};
+			autosize.update = function (el) {
+				if (el) {
+					Array.prototype.forEach.call(el.length ? el : [el], update);
+				}
+				return el;
+			};
+		}
+
+		module.exports = autosize;
+	});
 
 /***/ }
 /******/ ]);
