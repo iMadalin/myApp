@@ -6,6 +6,7 @@ import stylePropType from 'react-style-proptype';
 import Pane from './Pane';
 import Resizer from './Resizer';
 
+
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Safari/537.2';
 
 function unFocus(document, window) {
@@ -29,11 +30,15 @@ class SplitPane extends Component {
         this.onTouchMove = this.onTouchMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
 
+
+
         this.state = {
+
             active: false,
             resized: false,
-        };
-    }
+
+    };
+  }
 
     componentDidMount() {
         this.setSize(this.props, this.state);
@@ -260,13 +265,16 @@ class SplitPane extends Component {
                     className="Pane2"
                     style={pane2Style}
                     split={split}
+
+
                     size={this.props.primary === 'second' ?
                       this.props.size || this.props.defaultSize || this.props.minSize :
                       undefined
                     }
-                >
+                >   
                     {children[1]}
                 </Pane>
+
             </div>
         );
     }

@@ -30,6 +30,8 @@
 	"react-style-proptype": "^2.0.1",
   "react-text-input": "^0.0.8",
   "autosize": "^3.0.20",
-  "react-file-reader-input": "^1.1.0"
+  "react-file-reader-input": "^1.1.0",
+  "react-window-resize-listener": "^1.1.0",
+  "node-gyp":"^3.6.0"
   }
 }

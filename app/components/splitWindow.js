@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import SplitPane from './SplitPane';
-import OpenFileButton from './OpenFileButton'
+import OpenFile from './OpenFile'
+import OpenFileButton from "./OpenFileButton"
 import TextArea from "./Textarea"
+
+
 
 
 
@@ -12,6 +15,14 @@ const SplitWindow = () => {
   const styleB = { background: 'black' };
   const styleC = { background: '#606080' };
   const styleD = { background: 'black' };
+  const divStyle = {
+      flex: 1,
+      position: 'relative',
+      outline: 'none',
+      height: '100%',
+      width: '100%'
+  }
+
   return (
       <SplitPane
           split="vertical"
@@ -20,20 +31,25 @@ const SplitWindow = () => {
           pane1Style={styleA}
           resizerStyle={styleB}>
           <div>
+
           </div>
           <SplitPane
                     split="horizontal"
                     paneStyle={styleC}
-                    pane2Style={styleD}>
-              <div>
-              <OpenFileButton></OpenFileButton>
-              <TextArea></TextArea>
+                    pane2Style={styleD}
+                    >
+
+              <div style={divStyle} >
+
+                <TextArea ></TextArea>
+
               </div>
-              <div></div>
+              <div><OpenFileButton/></div>
           </SplitPane>
       </SplitPane>
   );
   };
+
 
 
 

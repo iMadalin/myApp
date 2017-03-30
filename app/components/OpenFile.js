@@ -1,12 +1,16 @@
 import React, { Component, PropTypes } from 'react';
 
-import OpenFileButton from "./OpenFileButton"
-import TextArea from "./TextArea"
 
 
-class OpenFile extends Component {
-  constructor(...args) {
-    super(...args)
-  }
+export default class OpenFile extends Component {
+
   render() {
+
+    return(
+      <div>
+      <OpenFileButton/>
+      <TextArea></TextArea>
+      </div>
+    )
+}
 }
