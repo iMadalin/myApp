@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "electron": "^1.6.2",
+    "electron-default-menu": "^1.0.0",
     "file-system": "^2.2.2"
   }
 }

@@ -1,13 +1,11 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, Menu, shell} = require('electron')
 const path = require('path')
 const url = require('url')
 const electron = require('electron')
 const {dialog} = require('electron')
 const {document} = require('electron')
 const fs = require('fs')
-
-const React = require('react')
-const ReactDOM = require('react-dom')
+const defaultMenu = require('electron-default-menu');
 
 
 
@@ -26,7 +24,6 @@ function createWindow () {
     slashes: true
   }))
 
-  webContents = win.webContents
 
   win.webContents.openDevTools()
 
@@ -49,7 +46,6 @@ app.on('activate', () => {
   }
 })
 
-const Menu = electron.Menu
 
 var showOpen = function () {
   dialog.showOpenDialog(function (fileNames) {
@@ -73,34 +69,28 @@ function readFile (filepath) {
       return
     }
     const {ipcMain} = require('electron')
-    /*
-    ipcMain.on('asynchronous-message', (event, arg) => {
-      event.sender.send('asynchronous-message',data)
-    })
-    */
+
     webContents.send('asynchronous-message', data)
-    console.log('The file content is : ' + data)
   })
 }
 
-const menuTemplate = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Open',
-        accelerator: 'Control+O',
-        click: function () { showOpen() }
+const menu = defaultMenu ( app,shell)
 
-      }, {
-        label: 'Quit',
-        click: () => {
-          app.quit()
-        }
+menu.splice(0,0, {
+  label: 'File',
+  submenu: [
+    {
+      label: 'Open',
+      accelerator: 'Control+O',
+      click: function () { showOpen() }
+
+    }, {
+      label: 'Quit',
+      click: () => {
+        app.quit()
       }
-    ]
-  }
-]
+    }
+  ]
+})
 
-const menu = Menu.buildFromTemplate(menuTemplate)
-Menu.setApplicationMenu(menu)
+Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
