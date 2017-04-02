@@ -1,16 +1,12 @@
-import React, { Component, PropTypes } from 'react';
-
-
+import React, { Component, PropTypes } from 'react'
 
 export default class OpenFile extends Component {
-
-  render() {
-
-    return(
+  render () {
+    return (
       <div>
-      <OpenFileButton/>
-      <TextArea></TextArea>
+        <OpenFileButton />
+        <TextArea />
       </div>
     )
-}
+  }
 }
