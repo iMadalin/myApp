@@ -19815,7 +19815,7 @@
 	          flexDirection: 'row',
 	          height: '100%',
 	          outline: 'none',
-	          position: 'absolute',
+	          position: 'relative',
 	          left: 0,
 	          right: 0
 	        });
@@ -19825,7 +19825,7 @@
 	          height: '100%',
 	          minHeight: '100%',
 	          outline: 'none',
-	          position: 'absolute',
+	          position: 'relative',
 	          top: 0,
 	          bottom: 0,
 	          width: '100%'
@@ -33779,12 +33779,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	// import React, { Component, PropTypes } from 'react';
-	// import Prefixer from 'inline-style-prefixer';
-	// import { WindowResizeListener } from 'react-window-resize-listener';
-	// import stylePropType from 'react-style-proptype';
-	// import $ from 'jquery';
-
 
 	var React = __webpack_require__(2);
 	var ReactDOM = __webpack_require__(158);
@@ -33804,22 +33798,21 @@
 	  }
 
 	  _createClass(TextArea, [{
-	    key: 'updateContents',
-	    value: function updateContents(ev, arg) {
-	      console.log('i update');
+	    key: 'handleChange',
+	    value: function handleChange(ev, arg) {
 	      this.setState({
 	        contents: arg
 	      });
-	      //this.forceUpdate()
 	    }
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      _electron.ipcRenderer.on('asynchronous-message', this.updateContents.bind(this));
+	      _electron.ipcRenderer.on('asynchronous-message', this.handleChange.bind(this));
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
+
 	      var divStyle = {
 	        flex: 1,
 	        position: 'relative',
@@ -33839,7 +33832,7 @@
 	      return React.createElement(
 	        'div',
 	        { style: divStyle },
-	        React.createElement('textarea', { id: 'output_field', style: textareaStyle, value: this.state.contents })
+	        React.createElement('textarea', { id: 'output_field', style: textareaStyle, value: this.state.contents, onChange: this.handleChange.bind(this) })
 	      );
 	    }
 	  }]);

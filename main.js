@@ -24,6 +24,7 @@ function createWindow () {
     slashes: true
   }))
 
+  webContents = win.webContents
 
   win.webContents.openDevTools()
 

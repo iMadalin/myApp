@@ -196,7 +196,7 @@ class SplitPane extends Component {
         flexDirection: 'row',
         height: '100%',
         outline: 'none',
-        position: 'absolute',
+        position: 'relative',
         left: 0,
         right: 0
       })
@@ -206,7 +206,7 @@ class SplitPane extends Component {
         height: '100%',
         minHeight: '100%',
         outline: 'none',
-        position: 'absolute',
+        position: 'relative',
         top: 0,
         bottom: 0,
         width: '100%'

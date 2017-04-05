@@ -1,9 +1,3 @@
-
-// import React, { Component, PropTypes } from 'react';
-// import Prefixer from 'inline-style-prefixer';
-// import { WindowResizeListener } from 'react-window-resize-listener';
-// import stylePropType from 'react-style-proptype';
-// import $ from 'jquery';
 import {ipcRenderer} from 'electron'
 var React = require('react')
 var ReactDOM = require('react-dom')
@@ -16,19 +10,19 @@ class TextArea extends React.Component {
     }
   }
 
-  updateContents (ev, arg) {
-    console.log('i update')
-    this.setState({
-      contents: arg
-    })
-    //this.forceUpdate()
-  }
+handleChange(ev,arg) {
+  this.setState({
+    contents: arg
+  })
+}
 
-  componentDidMount() {
-      ipcRenderer.on('asynchronous-message', this.updateContents.bind(this))
-  }
+componentDidMount() {
+    ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
+}
 
   render () {
+
+
     const divStyle = {
       flex: 1,
       position: 'relative',
@@ -48,7 +42,7 @@ class TextArea extends React.Component {
     return (
 
       <div style={divStyle} >
-        <textarea id='output_field' style={textareaStyle} value={this.state.contents} >
+        <textarea id='output_field' style={textareaStyle} value={this.state.contents} onChange={this.handleChange.bind(this)} >
 
         </textarea>
       </div>
