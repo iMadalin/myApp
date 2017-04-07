@@ -5,23 +5,32 @@ var ReactDOM = require('react-dom')
 class TextArea extends React.Component {
   constructor (props) {
     super(props)
+    this.text = 'cc'
     this.state = {
-      contents: 'sample contents'
+      contents: this.text
     }
   }
 
-handleChange(ev,arg) {
-  this.setState({
-    contents: arg
-  })
-}
+  updateText (newText) {
 
-componentDidMount() {
-    ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
-}
+    this.text = newText;
+    this.setState({
+      contents: null
+    })
+
+    ipcRenderer.send('asynchronous-message', this.text)
+  }
+
+  handleChange(ev,arg) {
+    //console.log(ev, arg)
+    this.updateText(arg)
+  }
+
+  componentDidMount() {
+      ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
+  }
 
   render () {
-
 
     const divStyle = {
       flex: 1,

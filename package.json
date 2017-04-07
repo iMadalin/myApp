@@ -7,6 +7,8 @@
     "start": "electron .",
     "build": "electron-packager . myApp"
   },
+
+
   "dependencies": {
     "electron-prebuilt": "^1.4.13",
     "electron-packager": "^3.2.0",
@@ -18,23 +20,18 @@
     "classnames": "^2.2.3",
     "electron-reload": "^0.2.0",
     "jquery": "^2.2.3",
-    "babel-loader": "^6.2.4",
-    "babel-core": "^6.10.4",
-    "webpack": "^1.14.0",
+	  "babel-loader": "^6.2.4",
+	"babel-core": "^6.10.4",
+	"webpack": "^1.14.0",
     "react": "^0.14.8",
-    "react-devtools": "^2.0.12",
+	"react-devtools": "^2.0.12",
     "react-dom": "^0.14.7",
-    "inline-style-prefixer": "^2.0.5",
-    "react-style-proptype": "^2.0.1",
-    "react-text-input": "^0.0.8",
-    "autosize": "^3.0.20",
-    "react-file-reader-input": "^1.1.0",
-    "react-window-resize-listener": "^1.1.0",
-    "node-gyp": "^3.6.0"
-  },
-  "devDependencies": {
-    "electron": "^1.6.2",
-    "electron-default-menu": "^1.0.0",
-    "file-system": "^2.2.2"
+	"inline-style-prefixer": "^2.0.5",
+	"react-style-proptype": "^2.0.1",
+  "react-text-input": "^0.0.8",
+  "react-file-reader-input": "^1.1.0",
+  "react-window-resize-listener": "^1.1.0",
+  "electron-save-file": "^1.0.2",
+  "node-gyp":"^3.6.0"
   }
 }

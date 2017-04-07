@@ -33791,18 +33791,29 @@
 
 	    var _this = _possibleConstructorReturn(this, (TextArea.__proto__ || Object.getPrototypeOf(TextArea)).call(this, props));
 
+	    _this.text = 'cc';
 	    _this.state = {
-	      contents: 'sample contents'
+	      contents: _this.text
 	    };
 	    return _this;
 	  }
 
 	  _createClass(TextArea, [{
+	    key: 'updateText',
+	    value: function updateText(newText) {
+
+	      this.text = newText;
+	      this.setState({
+	        contents: null
+	      });
+
+	      _electron.ipcRenderer.send('asynchronous-message', this.text);
+	    }
+	  }, {
 	    key: 'handleChange',
 	    value: function handleChange(ev, arg) {
-	      this.setState({
-	        contents: arg
-	      });
+	      //console.log(ev, arg)
+	      this.updateText(arg);
 	    }
 	  }, {
 	    key: 'componentDidMount',
