@@ -3,7 +3,7 @@ var React = require('react')
 var ReactDOM = require('react-dom')
 
 class TextArea extends React.Component {
-  constructor (props) {
+/*   constructor (props) {
     super(props)
     this.text = 'cc'
     this.state = {
@@ -11,7 +11,7 @@ class TextArea extends React.Component {
     }
   }
 
-  updateText (newText) {
+ updateText (newText) {
 
     this.text = newText;
     this.setState({
@@ -24,6 +24,21 @@ class TextArea extends React.Component {
   handleChange(ev,arg) {
     //console.log(ev, arg)
     this.updateText(arg)
+  }
+*/
+
+constructor (props) {
+    super(props)
+    this.state = {
+      contents: this.text
+    }
+  }
+
+  handleChange(ev,arg) {
+    this.setState({
+      contents: arg
+    })
+    ipcRenderer.send('asynchronous-message', this.text)
   }
 
   componentDidMount() {

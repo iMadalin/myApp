@@ -48,6 +48,30 @@ app.on('activate', () => {
   }
 })
 
+var content = ''
+ipcMain.on('asynchronous-message', (event, contents) =>{
+  content = contents;
+  console.log(content)
+})
+
+var newFile = function() {
+  content = ''
+  dialog.showSaveDialog(function (NewFileName) {
+       if (NewFileName === undefined){
+            console.log("You didn't save the file");
+            return;
+       }
+
+       fs.writeFile(NewFileName, content, function (err) {
+           if(err){
+               alert("An error ocurred creating the file "+ err.message)
+           }
+
+           alert("The file has been succesfully saved");
+       });
+});
+}
+
 var currentPath = '';
 var showOpen = function () {
   dialog.showOpenDialog(function (fileNames) {
@@ -79,13 +103,8 @@ function readFile (filepath) {
   })
 }
 
-var content = "saved"
-ipcMain.on('asynchronous-message', (event, contents) =>{
-  content = contents;
-  console.log(content)
-})
-var saveFile = function () {
 
+var saveFile = function () {
 fs.writeFile(currentPath, content, function (err) {
       if(err){
             alert("An error ocurred updating the file"+ err.message);
@@ -102,10 +121,14 @@ menu.splice(0,0, {
   label: 'File',
   submenu: [
     {
+      label: 'New',
+      accelerator: 'Control+N',
+      click: function () { newFile() }
+    },
+    {
       label: 'Open',
       accelerator: 'Control+O',
       click: function () { showOpen() }
-
     },
     {
       label: 'Save',
@@ -115,9 +138,7 @@ menu.splice(0,0, {
      {
       label: 'Quit',
       accelerator: 'Alt+F4',
-      click: () => {
-        app.quit()
-      }
+      click: () => { app.quit() }
     }
   ]
 })

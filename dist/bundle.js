@@ -33786,12 +33786,35 @@
 	var TextArea = function (_React$Component) {
 	  _inherits(TextArea, _React$Component);
 
+	  /*   constructor (props) {
+	      super(props)
+	      this.text = 'cc'
+	      this.state = {
+	        contents: this.text
+	      }
+	    }
+	  
+	   updateText (newText) {
+	  
+	      this.text = newText;
+	      this.setState({
+	        contents: null
+	      })
+	  
+	      ipcRenderer.send('asynchronous-message', this.text)
+	    }
+	  
+	    handleChange(ev,arg) {
+	      //console.log(ev, arg)
+	      this.updateText(arg)
+	    }
+	  */
+
 	  function TextArea(props) {
 	    _classCallCheck(this, TextArea);
 
 	    var _this = _possibleConstructorReturn(this, (TextArea.__proto__ || Object.getPrototypeOf(TextArea)).call(this, props));
 
-	    _this.text = 'cc';
 	    _this.state = {
 	      contents: _this.text
 	    };
@@ -33799,21 +33822,12 @@
 	  }
 
 	  _createClass(TextArea, [{
-	    key: 'updateText',
-	    value: function updateText(newText) {
-
-	      this.text = newText;
-	      this.setState({
-	        contents: null
-	      });
-
-	      _electron.ipcRenderer.send('asynchronous-message', this.text);
-	    }
-	  }, {
 	    key: 'handleChange',
 	    value: function handleChange(ev, arg) {
-	      //console.log(ev, arg)
-	      this.updateText(arg);
+	      this.setState({
+	        contents: arg
+	      });
+	      _electron.ipcRenderer.send('asynchronous-message', this.text);
 	    }
 	  }, {
 	    key: 'componentDidMount',
