@@ -1,7 +1,9 @@
+let path = require('path')
+
 module.exports = {
-  entry: ['./app/components/splitWindow.js'],
+  entry: ['./app/index.js'],
   output: {
-    path: './dist',
+    path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     publicPath: '/'
   },
@@ -12,11 +14,10 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         query: {
-          presets: ['react', 'es2015']
+          presets: ['es2015', 'react']
         }
       }
     ]
   },
   target: 'electron'
-
 }

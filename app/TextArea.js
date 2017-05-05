@@ -1,8 +1,9 @@
+'use strict'
+
 import {ipcRenderer} from 'electron'
 var React = require('react')
-var ReactDOM = require('react-dom')
 
-class TextArea extends React.Component {
+export default class TextArea extends React.Component {
 /*   constructor (props) {
     super(props)
     this.text = 'cc'
@@ -27,26 +28,26 @@ class TextArea extends React.Component {
   }
 */
 
-constructor (props) {
+  constructor (props) {
     super(props)
     this.state = {
       contents: this.text
     }
+    this.handleChange = this.handleChange.bind(this)
   }
 
-  handleChange(ev,arg) {
+  handleChange (ev, arg) {
     this.setState({
       contents: arg
     })
     ipcRenderer.send('asynchronous-message', this.text)
   }
 
-  componentDidMount() {
-      ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
+  componentDidMount () {
+    ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
   }
 
   render () {
-
     const divStyle = {
       flex: 1,
       position: 'relative',
@@ -66,12 +67,8 @@ constructor (props) {
     return (
 
       <div style={divStyle} >
-        <textarea id='output_field' style={textareaStyle} value={this.state.contents} onChange={this.handleChange.bind(this)} >
-
-        </textarea>
+        <textarea id='output_field' style={textareaStyle} value={this.state.contents} onChange={this.handleChange.bind(this)} />
       </div>
     )
   }
 }
-
-export default TextArea
