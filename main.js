@@ -54,7 +54,7 @@ var newFile = function () {
 //  });
 }
 
-var currentPath = ''
+
 
 var showOpen = function () {
   dialog.showOpenDialog(function (fileNames) {
@@ -76,21 +76,40 @@ function readFile (filepath) {
   fs.readFile(filepath, 'utf-8', function (data) {
     mainWindow.webContents.send('asynchronous-message', data)
 
-    currentPath = filepath
+  //  currentPath = filepath
   })
 }
-ipcMain.on('tabPath', (event, path) => {
-  currentPath = path
-})
+
+function tabName(name){
+  let index
+  for(var i = 0 ; i<name.length;i++){
+    if(name[i] == '\\'){
+      index = i
+    }
+  }
+  name = name.substring(index+1,name.length)
+  return name;
+}
+  var currentPath = ''
 var saveFile = function () {
 
+  ipcMain.on('tabPath', (event, path) => {
+    currentPath = path
+    console.log(currentPath)
+  })
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       fs.writeFile(fileName, content)
-      currentPath = filename
+      currentPath = fileName
+      currentPath = tabName(currentPath)
+      mainWindow.webContents.send('saveFile',currentPath, fileName)
+      console.log(currentPath)
     })
   }
-  fs.writeFile(currentPath, content)
+  else{
+    fs.writeFile(currentPath, content)
+    tabName(currentPath)
+  }
 }
 
 var saveAsFile = function () {

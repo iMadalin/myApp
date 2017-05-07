@@ -45,8 +45,12 @@ export default class TabsPane extends React.Component {
         path = this.state.tabs[i].filePath;
       }
     }
-    if(path !== null){
-      ipcRenderer.send('tabPath', path.toString())
+    if(path === null){
+      path = '';
+      ipcRenderer.send('tabPath', path)
+    }
+    else{
+        ipcRenderer.send('tabPath', path.toString())
     }
   };
 
@@ -76,11 +80,28 @@ export default class TabsPane extends React.Component {
       activeKey: newTab.tabKey
     })
   }
+  saveFile (ev, tabName,path) {
+    let index
+    let newTab
+    for(let i = 0 ; i< this.state.tabs.length;i++){
+      if(this.state.tabs[i].tabKey === this.state.activeKey){
+        index = i
+        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey )
+      }
+    }
+    this.state.tabs.splice(index,1,newTab)
+    let newTabs = this.state.tabs
+
+    this.setState({
+      tabs: newTabs
+    })
+  }
 
   componentDidMount () {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('saveAsFile', this.saveAsFile.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
+    ipcRenderer.on('saveFile', this.saveFile.bind(this))
   }
 
   TabPane () {
