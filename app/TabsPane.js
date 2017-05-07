@@ -18,6 +18,7 @@ function TabData (title, path, key = undefined) {
   this.oldContent = 0
 }
 
+
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
@@ -38,7 +39,6 @@ export default class TabsPane extends React.Component {
       this.setState({
       activeKey
     })
-
     var path;
     for(let i = 0 ; i< this.state.tabs.length;i++){
       if(this.state.tabs[i].tabKey === activeKey){
@@ -46,11 +46,12 @@ export default class TabsPane extends React.Component {
       }
     }
     if(path === null){
-      path = '';
+      path = ''
       ipcRenderer.send('tabPath', path)
     }
     else{
-        ipcRenderer.send('tabPath', path.toString())
+        let tabPath = path.toString()
+        ipcRenderer.send('tabPath', tabPath)
     }
   };
 
@@ -58,14 +59,20 @@ export default class TabsPane extends React.Component {
   handleChange (ev, arg) {
     let newTab = new TabData(arg, '', '')
     let newTabs = this.state.tabs.concat(newTab)
+    let key = newTab.tabKey;
     this.setState({
       tabs: newTabs,
-      activeKey: newTab.tabKey
+      activeKey: key
     })
+    ipcRenderer.send('tabPath', '')
   }
 
   openFile (ev, tabName, path) {
     let newTab = new TabData(tabName, path, '')
+    ipcRenderer.on('asynchronous-message', (event,data) => {
+
+      console.log(data)
+    })
     let newTabs = this.state.tabs.concat(newTab)
     this.setState({
       tabs: newTabs,
@@ -135,6 +142,7 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
+      ipcRenderer.send('tabPath', '')
   }
 
   removeTab (t, e) {

@@ -61,7 +61,7 @@ var newFile = function () {
 //    }
 //    fs.writeFile(NewFileName)
 //    console.log(NewFileName)
-  mainWindow.webContents.send('NewFileMessage', 'NewFile')
+  mainWindow.webContents.send('NewFileMessage', 'untitled')
 //  });
 }
 
@@ -89,7 +89,7 @@ function readFile (filepath) {
 
   })
 }
-  var currentPath = ''
+var currentPath = ''
 var saveFile = function () {
 
   ipcMain.on('tabPath', (event, path) => {
