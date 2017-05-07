@@ -18,7 +18,6 @@ function TabData (title, path, key = undefined) {
   this.oldContent = 0
 }
 
-
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
@@ -36,30 +35,28 @@ export default class TabsPane extends React.Component {
   };
 
   onChange (activeKey) {
-      this.setState({
+    this.setState({
       activeKey
     })
-    var path;
-    for(let i = 0 ; i< this.state.tabs.length;i++){
-      if(this.state.tabs[i].tabKey === activeKey){
-        path = this.state.tabs[i].filePath;
+    var path
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === activeKey) {
+        path = this.state.tabs[i].filePath
       }
     }
-    if(path === null){
+    if (path === null) {
       path = ''
       ipcRenderer.send('tabPath', path)
-    }
-    else{
-        let tabPath = path.toString()
-        ipcRenderer.send('tabPath', tabPath)
+    } else {
+      let tabPath = path.toString()
+      ipcRenderer.send('tabPath', tabPath)
     }
   };
-
 
   handleChange (ev, arg) {
     let newTab = new TabData(arg, '', '')
     let newTabs = this.state.tabs.concat(newTab)
-    let key = newTab.tabKey;
+    let key = newTab.tabKey
     this.setState({
       tabs: newTabs,
       activeKey: key
@@ -69,32 +66,29 @@ export default class TabsPane extends React.Component {
 
   openFile (ev, tabName, path) {
     let newTab = new TabData(tabName, path, '')
-    ipcRenderer.on('asynchronous-message', (event,data) => {
-
-      console.log(data)
-    })
     let newTabs = this.state.tabs.concat(newTab)
     this.setState({
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
   }
-  saveFile (ev, tabName,path) {
+
+  saveFile (ev, tabName, path) {
     let index
     let newTab
-    for(let i = 0 ; i< this.state.tabs.length;i++){
-      if(this.state.tabs[i].tabKey === this.state.activeKey){
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey) {
         index = i
-        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey )
+        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
       }
     }
-    this.state.tabs.splice(index,1,newTab)
+    this.state.tabs.splice(index, 1, newTab)
     let newTabs = this.state.tabs
 
     this.setState({
       tabs: newTabs
     })
-  }
+  };
 
   componentDidMount () {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
@@ -142,14 +136,14 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
-      ipcRenderer.send('tabPath', '')
+    ipcRenderer.send('tabPath', '')
   }
 
   removeTab (t, e) {
     e.stopPropagation()
   //  if (newState.length === 1) {
-//        return;
-//    }
+  //     return;
+  //  }
     let activeKey = this.state.activeKey
     const tabs = this.state.tabs.filter((tab) => {
       if (tab.tabKey !== t) {

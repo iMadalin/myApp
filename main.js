@@ -38,18 +38,17 @@ var content = ''
 
 ipcMain.on('asynchronous-message', (event, contents) => {
   content = contents
-  console.log(content)
 })
 
-function tabName(name){
+function tabName (name) {
   let index
-  for(var i = 0 ; i<name.length;i++){
-    if(name[i] == '\\'){
+  for (var i = 0; i < name.length; i++) {
+    if (name[i] === '\\') {
       index = i
     }
   }
-   let title = name.substring(index+1,name.length)
-  return title;
+  let title = name.substring(index + 1, name.length)
+  return title
 }
 
 var newFile = function () {
@@ -64,7 +63,6 @@ var newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
 //  });
 }
-
 
 var showOpen = function () {
   dialog.showOpenDialog(function (fileNames) {
@@ -84,26 +82,26 @@ var showOpen = function () {
   })
 }
 function readFile (filepath) {
-  fs.readFile(filepath, 'utf-8', function (data) {
+  fs.readFile(filepath, 'utf-8', (err, data) => {
+    if (err) {
+      console.log('An error ocurred reading the file :' + err.message)
+      return
+    }
     mainWindow.webContents.send('asynchronous-message', data)
-
   })
 }
 var currentPath = ''
 var saveFile = function () {
-
   ipcMain.on('tabPath', (event, path) => {
     currentPath = path
-    console.log(currentPath)
   })
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       fs.writeFile(fileName, content)
       currentPath = tabName(fileName)
-      mainWindow.webContents.send('saveFile',currentPath, fileName)
+      mainWindow.webContents.send('saveFile', currentPath, fileName)
     })
-  }
-  else{
+  } else {
     fs.writeFile(currentPath, content)
     tabName(currentPath)
   }
