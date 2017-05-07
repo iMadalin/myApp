@@ -31,7 +31,7 @@ export default class TabsPane extends React.Component {
     this.onChange = this.onChange.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.openFile = this.openFile.bind(this)
-    this.saveAsFile = this.saveAsFile.bind(this)
+    this.saveFile = this.saveFile.bind(this)
   };
 
   onChange (activeKey) {
@@ -63,17 +63,9 @@ export default class TabsPane extends React.Component {
       activeKey: newTab.tabKey
     })
   }
-  saveAsFile (ev, arg) {
-    let newTab = new TabData(arg, arg, '')
-    let newTabs = this.state.tabs.concat(newTab)
-    this.setState({
-      tabs: newTabs,
-      activeKey: newTab.tabKey
-    })
-    ipcRenderer.send('filePath', arg)
-  }
-  openFile (ev, arg) {
-    let newTab = new TabData(arg, arg, '')
+
+  openFile (ev, tabName, path) {
+    let newTab = new TabData(tabName, path, '')
     let newTabs = this.state.tabs.concat(newTab)
     this.setState({
       tabs: newTabs,
@@ -99,7 +91,6 @@ export default class TabsPane extends React.Component {
 
   componentDidMount () {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
-    ipcRenderer.on('saveAsFile', this.saveAsFile.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
   }

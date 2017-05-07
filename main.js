@@ -41,6 +41,17 @@ ipcMain.on('asynchronous-message', (event, contents) => {
   console.log(content)
 })
 
+function tabName(name){
+  let index
+  for(var i = 0 ; i<name.length;i++){
+    if(name[i] == '\\'){
+      index = i
+    }
+  }
+   let title = name.substring(index+1,name.length)
+  return title;
+}
+
 var newFile = function () {
 //  content = ''
 //  dialog.showSaveDialog(function (NewFileName) {
@@ -53,7 +64,6 @@ var newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'NewFile')
 //  });
 }
-
 
 
 var showOpen = function () {
@@ -69,26 +79,15 @@ var showOpen = function () {
         event.sender.sent('actionReply', result)
       })
     }
-    mainWindow.webContents.send('OpenFile', fileNames)
+    var tabTitle = tabName(fileNames.toString())
+    mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
   })
 }
 function readFile (filepath) {
   fs.readFile(filepath, 'utf-8', function (data) {
     mainWindow.webContents.send('asynchronous-message', data)
 
-  //  currentPath = filepath
   })
-}
-
-function tabName(name){
-  let index
-  for(var i = 0 ; i<name.length;i++){
-    if(name[i] == '\\'){
-      index = i
-    }
-  }
-  name = name.substring(index+1,name.length)
-  return name;
 }
   var currentPath = ''
 var saveFile = function () {
@@ -100,10 +99,8 @@ var saveFile = function () {
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       fs.writeFile(fileName, content)
-      currentPath = fileName
-      currentPath = tabName(currentPath)
+      currentPath = tabName(fileName)
       mainWindow.webContents.send('saveFile',currentPath, fileName)
-      console.log(currentPath)
     })
   }
   else{
@@ -115,7 +112,8 @@ var saveFile = function () {
 var saveAsFile = function () {
   dialog.showSaveDialog(function (fileName) {
     fs.writeFile(fileName, content)
-    mainWindow.webContents.send('saveAsFile', fileName)
+    let tabTitle = tabName(fileName)
+    mainWindow.webContents.send('saveFile', tabTitle, fileName)
   })
 }
 
