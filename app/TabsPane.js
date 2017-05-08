@@ -65,8 +65,26 @@ export default class TabsPane extends React.Component {
   }
 
   openFile (ev, tabName, path) {
-    let newTab = new TabData(tabName, path, '')
-    let newTabs = this.state.tabs.concat(newTab)
+    let index
+    let newTab
+    let newTabs
+    let ok = false
+
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey && this.state.tabs[i].filePath === null) {
+        index = i
+        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
+        ok = true
+      }
+    }
+    if (ok) {
+      this.state.tabs.splice(index, 1, newTab)
+      newTabs = this.state.tabs
+    } else {
+      newTab = new TabData(tabName, path, '')
+      newTabs = this.state.tabs.concat(newTab)
+    }
+
     this.setState({
       tabs: newTabs,
       activeKey: newTab.tabKey
