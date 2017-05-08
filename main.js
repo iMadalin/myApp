@@ -52,16 +52,7 @@ function tabName (name) {
 }
 
 var newFile = function () {
-//  content = ''
-//  dialog.showSaveDialog(function (NewFileName) {
-//    if (NewFileName === undefined){
-//      console.log("You didn't save the file");
-//      return;
-//    }
-//    fs.writeFile(NewFileName)
-//    console.log(NewFileName)
   mainWindow.webContents.send('NewFileMessage', 'untitled')
-//  });
 }
 
 var showOpen = function () {
@@ -97,6 +88,10 @@ var saveFile = function () {
   })
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
+      if (fileName === undefined) {
+        console.log("You didn't save the file")
+        return
+      }
       fs.writeFile(fileName, content)
       currentPath = tabName(fileName)
       mainWindow.webContents.send('saveFile', currentPath, fileName)
@@ -109,6 +104,10 @@ var saveFile = function () {
 
 var saveAsFile = function () {
   dialog.showSaveDialog(function (fileName) {
+    if (fileName === undefined) {
+      console.log("You didn't save the file")
+      return
+    }
     fs.writeFile(fileName, content)
     let tabTitle = tabName(fileName)
     mainWindow.webContents.send('saveFile', tabTitle, fileName)

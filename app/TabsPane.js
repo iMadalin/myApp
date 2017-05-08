@@ -9,7 +9,7 @@ import {ipcRenderer} from 'electron'
 function TabData (title, path, key = undefined) {
   this.tabKey = key || 'tab_' + Date.now()
   this.tabTitle = title || 'untitled'
-  this.filePath = path || null
+  this.filePath = path || ''
   this.content = ''
 
   // this could be a hash corresponding to the last known content
@@ -44,8 +44,7 @@ export default class TabsPane extends React.Component {
         path = this.state.tabs[i].filePath
       }
     }
-    if (path === null) {
-      path = ''
+    if (path === '') {
       ipcRenderer.send('tabPath', path)
     } else {
       let tabPath = path.toString()
@@ -65,26 +64,24 @@ export default class TabsPane extends React.Component {
   }
 
   openFile (ev, tabName, path) {
-    let index
     let newTab
     let newTabs
-    let ok = false
-
+    let key
+    let exist = false
     for (let i = 0; i < this.state.tabs.length; i++) {
-      if (this.state.tabs[i].tabKey === this.state.activeKey && this.state.tabs[i].filePath === null) {
-        index = i
-        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
-        ok = true
+      if (this.state.tabs[i].filePath.toString() === path.toString()) {
+        key = this.state.tabs[i].tabKey
+        exist = true
       }
     }
-    if (ok) {
-      this.state.tabs.splice(index, 1, newTab)
-      newTabs = this.state.tabs
+    if (exist) {
+      this.setState({
+        activeKey: key
+      })
     } else {
       newTab = new TabData(tabName, path, '')
       newTabs = this.state.tabs.concat(newTab)
     }
-
     this.setState({
       tabs: newTabs,
       activeKey: newTab.tabKey
