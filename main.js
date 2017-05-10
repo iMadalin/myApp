@@ -60,25 +60,27 @@ var showOpen = function () {
     if (fileNames === undefined) {
       console.log('No file selected')
     } else {
+      let f = fileNames[0]
+      if (f === undefined) return
       readFile(fileNames[0])
 
       var ipc = require('electron').ipcMain
       ipc.on('invokeAction', function (event) {
         var result = readFile(fileNames[0])
-        event.sender.sent('actionReply', result)
+        event.sender.send('actionReply', result)
       })
+
+      var tabTitle = tabName(fileNames[0])
+      mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
     }
-    var tabTitle = tabName(fileNames.toString())
-    mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
   })
 }
 function readFile (filepath) {
   fs.readFile(filepath, 'utf-8', (err, data) => {
     if (err) {
       console.log('An error ocurred reading the file :' + err.message)
-      return
     }
-    mainWindow.webContents.send('asynchronous-message', data)
+    // mainWindow.webContents.send('asynchronous-message', data)
   })
 }
 var currentPath = ''

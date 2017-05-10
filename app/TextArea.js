@@ -30,21 +30,25 @@ export default class TextArea extends React.Component {
 
   constructor (props) {
     super(props)
+
     this.state = {
-      contents: this.text
+      // contents: this.text
+      content: this.props.content
+
     }
     this.handleChange = this.handleChange.bind(this)
   }
 
   handleChange (ev, arg) {
+    // console.log(ev.target.value)
     this.setState({
-      contents: arg
+      content: ev.target.value
     })
-    ipcRenderer.send('asynchronous-message', this.text)
+    ipcRenderer.send('asynchronous-message', this.state.content)
   }
 
   componentDidMount () {
-    ipcRenderer.on('asynchronous-message', this.handleChange.bind(this))
+    // ipcRenderer.on('asynchronous-message-a', this.handleChange.bind(this))
   }
 
   render () {
@@ -67,7 +71,7 @@ export default class TextArea extends React.Component {
     return (
 
       <div style={divStyle} >
-        <textarea id='output_field' style={textareaStyle} value={this.state.contents} onChange={this.handleChange.bind(this)} />
+        <textarea id='output_field' style={textareaStyle} value={this.state.content} onChange={this.handleChange.bind(this)} />
       </div>
     )
   }

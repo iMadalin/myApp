@@ -4,13 +4,14 @@ import Tabs, { TabPane } from 'rc-tabs'
 import TabContent from 'rc-tabs/lib/TabContent'
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
 import {ipcRenderer} from 'electron'
+const fs = require('fs')
 
 // We may also want to pass the key, to ease copying
-function TabData (title, path, key = undefined) {
+function TabData (title, path, key = undefined, content = '') {
   this.tabKey = key || 'tab_' + Date.now()
   this.tabTitle = title || 'untitled'
   this.filePath = path || ''
-  this.content = ''
+  this.content = content
 
   // this could be a hash corresponding to the last known content
   // by computing the current hash and comparing it to this,
@@ -79,7 +80,14 @@ export default class TabsPane extends React.Component {
         activeKey: key
       })
     } else {
-      newTab = new TabData(tabName, path, '')
+      let data
+      try {
+        data = fs.readFileSync(path[0], 'utf-8')
+      } catch (err) {
+        console.log(err)
+        return
+      }
+      newTab = new TabData(tabName, path, '', data)
       newTabs = this.state.tabs.concat(newTab)
     }
     this.setState({
@@ -109,6 +117,28 @@ export default class TabsPane extends React.Component {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
+
+    ipcRenderer.on('asynchronous-message', this.handleContentChange.bind(this))
+  }
+
+  handleContentChange (ev, c) {
+    let activeTab = this.state.tabs.find(function (tab) {
+      return tab.tabKey === this.state.activeKey
+    }.bind(this))
+
+    activeTab.content = c
+    let index
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey) {
+        index = i
+      }
+    }
+    this.state.tabs.splice(index, 1, activeTab)
+    let newTabs = this.state.tabs
+    this.setState({
+      tabs: newTabs,
+      activeKey: activeTab.tabKey
+    })
   }
 
   TabPane () {
@@ -133,7 +163,8 @@ export default class TabsPane extends React.Component {
           </span>}
           key={tab.tabKey}
         >
-          <TextArea style={style} id={tab.tabKey} />
+
+          <TextArea style={style} id={tab.tabKey} content={tab.content} />
         </TabPane>
       )
     }).concat([
