@@ -84,10 +84,10 @@ export default class TabsPane extends React.Component {
       try {
         data = fs.readFileSync(path[0], 'utf-8')
       } catch (err) {
-        console.log(err)
         return
       }
-      newTab = new TabData(tabName, path, '', data)
+      ipcRenderer.send('tabPath', path[0])
+      newTab = new TabData(tabName, path.toString(), '', data)
       newTabs = this.state.tabs.concat(newTab)
     }
     this.setState({
@@ -103,6 +103,7 @@ export default class TabsPane extends React.Component {
       if (this.state.tabs[i].tabKey === this.state.activeKey) {
         index = i
         newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
+        ipcRenderer.send('tabPath', path)
       }
     }
     this.state.tabs.splice(index, 1, newTab)
@@ -117,28 +118,6 @@ export default class TabsPane extends React.Component {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
-
-    ipcRenderer.on('asynchronous-message', this.handleContentChange.bind(this))
-  }
-
-  handleContentChange (ev, c) {
-    let activeTab = this.state.tabs.find(function (tab) {
-      return tab.tabKey === this.state.activeKey
-    }.bind(this))
-
-    activeTab.content = c
-    let index
-    for (let i = 0; i < this.state.tabs.length; i++) {
-      if (this.state.tabs[i].tabKey === this.state.activeKey) {
-        index = i
-      }
-    }
-    this.state.tabs.splice(index, 1, activeTab)
-    let newTabs = this.state.tabs
-    this.setState({
-      tabs: newTabs,
-      activeKey: activeTab.tabKey
-    })
   }
 
   TabPane () {
@@ -163,7 +142,6 @@ export default class TabsPane extends React.Component {
           </span>}
           key={tab.tabKey}
         >
-
           <TextArea style={style} id={tab.tabKey} content={tab.content} />
         </TabPane>
       )

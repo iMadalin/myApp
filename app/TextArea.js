@@ -4,35 +4,10 @@ import {ipcRenderer} from 'electron'
 var React = require('react')
 
 export default class TextArea extends React.Component {
-/*   constructor (props) {
-    super(props)
-    this.text = 'cc'
-    this.state = {
-      contents: this.text
-    }
-  }
-
- updateText (newText) {
-
-    this.text = newText;
-    this.setState({
-      contents: null
-    })
-
-    ipcRenderer.send('asynchronous-message', this.text)
-  }
-
-  handleChange(ev,arg) {
-    //console.log(ev, arg)
-    this.updateText(arg)
-  }
-*/
-
   constructor (props) {
     super(props)
 
     this.state = {
-      // contents: this.text
       content: this.props.content
 
     }
@@ -40,15 +15,12 @@ export default class TextArea extends React.Component {
   }
 
   handleChange (ev, arg) {
-    // console.log(ev.target.value)
+    console.log(ev.target.value)
     this.setState({
       content: ev.target.value
     })
-    ipcRenderer.send('asynchronous-message', this.state.content)
-  }
-
-  componentDidMount () {
-    // ipcRenderer.on('asynchronous-message-a', this.handleChange.bind(this))
+  //  console.log(this.state.content)
+    ipcRenderer.send('asynchronous-message', ev.target.value)
   }
 
   render () {

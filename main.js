@@ -80,14 +80,16 @@ function readFile (filepath) {
     if (err) {
       console.log('An error ocurred reading the file :' + err.message)
     }
-    // mainWindow.webContents.send('asynchronous-message', data)
   })
 }
 var currentPath = ''
+
+ipcMain.on('tabPath', (event, path) => {
+  currentPath = path
+})
+
 var saveFile = function () {
-  ipcMain.on('tabPath', (event, path) => {
-    currentPath = path
-  })
+  console.log(currentPath)
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       if (fileName === undefined) {
@@ -95,12 +97,12 @@ var saveFile = function () {
         return
       }
       fs.writeFile(fileName, content)
-      currentPath = tabName(fileName)
-      mainWindow.webContents.send('saveFile', currentPath, fileName)
+      let titleName = tabName(fileName)
+      mainWindow.webContents.send('saveFile', titleName, fileName)
     })
   } else {
     fs.writeFile(currentPath, content)
-    tabName(currentPath)
+  //  tabName(currentPath)
   }
 }
 
