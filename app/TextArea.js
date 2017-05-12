@@ -4,6 +4,8 @@ import {ipcRenderer} from 'electron'
 var React = require('react')
 
 export default class TextArea extends React.Component {
+
+
   constructor (props) {
     super(props)
 
@@ -12,16 +14,16 @@ export default class TextArea extends React.Component {
 
     }
     this.handleChange = this.handleChange.bind(this)
+
   }
 
   handleChange (ev, arg) {
-    console.log(ev.target.value)
     this.setState({
       content: ev.target.value
     })
-  //  console.log(this.state.content)
     ipcRenderer.send('asynchronous-message', ev.target.value)
   }
+
 
   render () {
     const divStyle = {

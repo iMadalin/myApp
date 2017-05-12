@@ -51,6 +51,10 @@ function tabName (name) {
   return title
 }
 
+ipcMain.on('currentSession', (event,data) => {
+  console.log(data)
+})
+
 var newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
 }
@@ -89,19 +93,18 @@ ipcMain.on('tabPath', (event, path) => {
 })
 
 var saveFile = function () {
-  console.log(currentPath)
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       if (fileName === undefined) {
         console.log("You didn't save the file")
         return
       }
-      fs.writeFile(fileName, content)
+      fs.writeFileSyncSync(fileName, content)
       let titleName = tabName(fileName)
       mainWindow.webContents.send('saveFile', titleName, fileName)
     })
   } else {
-    fs.writeFile(currentPath, content)
+    fs.writeFileSync(currentPath, content)
   //  tabName(currentPath)
   }
 }
@@ -112,7 +115,7 @@ var saveAsFile = function () {
       console.log("You didn't save the file")
       return
     }
-    fs.writeFile(fileName, content)
+    fs.writeFileSync(fileName, content)
     let tabTitle = tabName(fileName)
     mainWindow.webContents.send('saveFile', tabTitle, fileName)
   })

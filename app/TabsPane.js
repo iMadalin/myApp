@@ -22,7 +22,6 @@ function TabData (title, path, key = undefined, content = '') {
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
-
     let tab = new TabData()
     this.state = {
       tabs: [tab],
@@ -33,6 +32,7 @@ export default class TabsPane extends React.Component {
     this.handleChange = this.handleChange.bind(this)
     this.openFile = this.openFile.bind(this)
     this.saveFile = this.saveFile.bind(this)
+
   };
 
   onChange (activeKey) {
@@ -51,6 +51,7 @@ export default class TabsPane extends React.Component {
       let tabPath = path.toString()
       ipcRenderer.send('tabPath', tabPath)
     }
+    ipcRenderer.send('currentSession', this.state.tabs)
   };
 
   handleChange (ev, arg) {
@@ -62,6 +63,7 @@ export default class TabsPane extends React.Component {
       activeKey: key
     })
     ipcRenderer.send('tabPath', '')
+    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   openFile (ev, tabName, path) {
@@ -94,6 +96,7 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
+    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   saveFile (ev, tabName, path) {
@@ -104,6 +107,7 @@ export default class TabsPane extends React.Component {
         index = i
         newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
         ipcRenderer.send('tabPath', path)
+        ipcRenderer.send('currentSession', this.state.tabs)
       }
     }
     this.state.tabs.splice(index, 1, newTab)
@@ -161,6 +165,7 @@ export default class TabsPane extends React.Component {
       activeKey: newTab.tabKey
     })
     ipcRenderer.send('tabPath', '')
+    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   removeTab (t, e) {
