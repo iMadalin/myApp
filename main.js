@@ -6,8 +6,9 @@ const path = require('path')
 const url = require('url')
 const defaultMenu = require('electron-default-menu')
 const fs = require('fs')
+const storage = require('./storage')
 
-function getAppSize () {
+/* function getAppSize () {
   let size = electron.screen.getPrimaryDisplay().workAreaSize
   let maxDimension = Math.max(size.width, size.height)
 
@@ -15,7 +16,7 @@ function getAppSize () {
     width: maxDimension * 0.65,
     height: maxDimension * 0.4
   }
-}
+} */
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -23,18 +24,50 @@ let mainWindow
 
 app.on('ready', function createWindow () {
   // Create browser window
-  mainWindow = new BrowserWindow(getAppSize())
+  // mainWindow = new BrowserWindow(getAppSize())
 
   // Load index.html
   // mainWindow.loadURL('file://' + __dirname + '/app/index.html')
+  let size = electron.screen.getPrimaryDisplay().workAreaSize
+  let lastWindowState = storage.get('lastWindowState')
+  if (lastWindowState === null) {
+    lastWindowState = {
+      width: Math.max(size.width, size.height) * 0.65,
+      height: Math.max(size.width, size.height) * 0.4,
+      maximized: false
+    }
+  }
+  mainWindow = new BrowserWindow({
+    x: lastWindowState.x,
+    y: lastWindowState.y,
+    width: lastWindowState.width,
+    height: lastWindowState.height,
+    content: lastWindowState.content
+  })
+
+  if (lastWindowState.maximized) {
+    mainWindow.maximize()
+  }
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/index.html'),
     protocal: 'file:',
     slashes: true
   }))
-})
+  mainWindow.on('close', function () {
+    let bounds = mainWindow.getBounds()
 
-var content = ''
+    storage.set('lastWindowState', {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      maximized: mainWindow.isMaximized(),
+      content: session
+    })
+  })
+})
+let session = []
+let content = ''
 
 ipcMain.on('asynchronous-message', (event, contents) => {
   content = contents
@@ -42,7 +75,7 @@ ipcMain.on('asynchronous-message', (event, contents) => {
 
 function tabName (name) {
   let index
-  for (var i = 0; i < name.length; i++) {
+  for (let i = 0; i < name.length; i++) {
     if (name[i] === '\\') {
       index = i
     }
@@ -51,15 +84,11 @@ function tabName (name) {
   return title
 }
 
-ipcMain.on('currentSession', (event,data) => {
-  console.log(data)
-})
-
-var newFile = function () {
+let newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
 }
 
-var showOpen = function () {
+let showOpen = function () {
   dialog.showOpenDialog(function (fileNames) {
     if (fileNames === undefined) {
       console.log('No file selected')
@@ -68,13 +97,13 @@ var showOpen = function () {
       if (f === undefined) return
       readFile(fileNames[0])
 
-      var ipc = require('electron').ipcMain
+      let ipc = require('electron').ipcMain
       ipc.on('invokeAction', function (event) {
-        var result = readFile(fileNames[0])
+        let result = readFile(fileNames[0])
         event.sender.send('actionReply', result)
       })
 
-      var tabTitle = tabName(fileNames[0])
+      let tabTitle = tabName(fileNames[0])
       mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
     }
   })
@@ -86,20 +115,20 @@ function readFile (filepath) {
     }
   })
 }
-var currentPath = ''
+let currentPath = ''
 
 ipcMain.on('tabPath', (event, path) => {
   currentPath = path
 })
 
-var saveFile = function () {
+let saveFile = function () {
   if (currentPath === '') {
     dialog.showSaveDialog(function (fileName) {
       if (fileName === undefined) {
         console.log("You didn't save the file")
         return
       }
-      fs.writeFileSyncSync(fileName, content)
+      fs.writeFileSync(fileName, content)
       let titleName = tabName(fileName)
       mainWindow.webContents.send('saveFile', titleName, fileName)
     })
@@ -109,7 +138,7 @@ var saveFile = function () {
   }
 }
 
-var saveAsFile = function () {
+let saveAsFile = function () {
   dialog.showSaveDialog(function (fileName) {
     if (fileName === undefined) {
       console.log("You didn't save the file")

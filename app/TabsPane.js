@@ -4,7 +4,8 @@ import Tabs, { TabPane } from 'rc-tabs'
 import TabContent from 'rc-tabs/lib/TabContent'
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
 import {ipcRenderer} from 'electron'
-const fs = require('fs')
+import fs from 'fs'
+import localStorage from 'localStorage'
 
 // We may also want to pass the key, to ease copying
 function TabData (title, path, key = undefined, content = '') {
@@ -22,17 +23,12 @@ function TabData (title, path, key = undefined, content = '') {
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
-    let tab = new TabData()
-    this.state = {
-      tabs: [tab],
-      activeKey: tab.tabKey
-    }
+    this.state = JSON.parse(localStorage.getItem('tab') || '{}')
     this.addTab = this.addTab.bind(this)
     this.onChange = this.onChange.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.openFile = this.openFile.bind(this)
     this.saveFile = this.saveFile.bind(this)
-
   };
 
   onChange (activeKey) {
@@ -51,7 +47,6 @@ export default class TabsPane extends React.Component {
       let tabPath = path.toString()
       ipcRenderer.send('tabPath', tabPath)
     }
-    ipcRenderer.send('currentSession', this.state.tabs)
   };
 
   handleChange (ev, arg) {
@@ -63,7 +58,6 @@ export default class TabsPane extends React.Component {
       activeKey: key
     })
     ipcRenderer.send('tabPath', '')
-    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   openFile (ev, tabName, path) {
@@ -96,7 +90,6 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
-    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   saveFile (ev, tabName, path) {
@@ -107,7 +100,6 @@ export default class TabsPane extends React.Component {
         index = i
         newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
         ipcRenderer.send('tabPath', path)
-        ipcRenderer.send('currentSession', this.state.tabs)
       }
     }
     this.state.tabs.splice(index, 1, newTab)
@@ -122,6 +114,12 @@ export default class TabsPane extends React.Component {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
+    setInterval(function () {
+      this.setState({
+        tabs: this.state.tabs
+      })
+      localStorage.setItem('tab', JSON.stringify(this.state))
+    }.bind(this), 1000)
   }
 
   TabPane () {
@@ -165,7 +163,6 @@ export default class TabsPane extends React.Component {
       activeKey: newTab.tabKey
     })
     ipcRenderer.send('tabPath', '')
-    ipcRenderer.send('currentSession', this.state.tabs)
   }
 
   removeTab (t, e) {
