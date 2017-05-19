@@ -23,7 +23,8 @@ function TabData (title, path, key = undefined, content = '') {
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
-    this.state = JSON.parse(localStorage.getItem('tab') || '{}')
+    let tab = new TabData()
+    this.state = JSON.parse(localStorage.getItem('tab') || tab)
     this.addTab = this.addTab.bind(this)
     this.onChange = this.onChange.bind(this)
     this.handleChange = this.handleChange.bind(this)

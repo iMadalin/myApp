@@ -17,10 +17,10 @@ const storage = require('./storage')
     height: maxDimension * 0.4
   }
 } */
-
+let mainWindow
+let findWindow
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
 
 app.on('ready', function createWindow () {
   // Create browser window
@@ -44,6 +44,21 @@ app.on('ready', function createWindow () {
     height: lastWindowState.height,
     content: lastWindowState.content
   })
+
+  findWindow = new BrowserWindow({
+    x: lastWindowState.x + 30,
+    y: lastWindowState.y + 70,
+    width: 300,
+    height: 30,
+    show: false,
+    frame: false,
+    parent: mainWindow
+  })
+  findWindow.loadURL(url.format({
+    pathname: path.join(__dirname, '/app/find.html'),
+    protocal: 'file:',
+    slashes: true
+  }))
 
   if (lastWindowState.maximized) {
     mainWindow.maximize()
@@ -150,6 +165,56 @@ let saveAsFile = function () {
   })
 }
 
+let previousString = ''
+let activeMatchOrdinal = 1
+let resultMatches
+ipcMain.on('findString', (event, str) => {
+  activeMatchOrdinal = 1
+  if (str === '') {
+    return
+  } else {
+    previousString = str
+    mainWindow.webContents.findInPage(str)
+    mainWindow.webContents.on('found-in-page', (event, result) => {
+      resultMatches = result.matches
+      if (result.activeMatchOrdinal) {
+        this.active = activeMatchOrdinal
+      }
+      if (result.finalUpdate) {
+        this.result_string = `${this.active} of ${result.matches}`
+        mainWindow.webContents.send('resultMatches', this.result_string)
+      }
+    })
+  }
+})
+
+ipcMain.on('findPrevious', (event, str) => {
+  mainWindow.webContents.findInPage(previousString, {findPrevious: true})
+  if (activeMatchOrdinal === 1) {
+    activeMatchOrdinal = resultMatches
+  } else {
+    activeMatchOrdinal -= 1
+  }
+})
+
+ipcMain.on('findNext', (event, str) => {
+  mainWindow.webContents.findInPage(previousString, {findNext: true})
+  if (activeMatchOrdinal === resultMatches) {
+    activeMatchOrdinal = 1
+  } else {
+    activeMatchOrdinal += 1
+  }
+})
+
+ipcMain.on('stopFind', (event, str) => {
+  mainWindow.webContents.stopFindInPage('clearSelection')
+  findWindow.hide()
+})
+
+let find = function () {
+  findWindow.show()
+}
+
 const menu = defaultMenu(app, shell)
 
 menu.splice(0, 0, {
@@ -174,6 +239,11 @@ menu.splice(0, 0, {
       label: 'Save As...',
       accelerator: 'Control+Alt+S',
       click: function () { saveAsFile() }
+    },
+    {
+      label: 'Find',
+      accelerator: 'Control+F',
+      click: function () { find() }
     },
     {
       label: 'Quit',

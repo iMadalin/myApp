@@ -26,6 +26,7 @@
   "dependencies": {
     "electron-config": "^1.0.0",
     "electron-default-menu": "^1.0.0",
+    "electron-in-page-search": "^1.2.3",
     "electron-tabs": "^0.5.1",
     "localStorage": "^1.0.3",
     "rc-tabs": "^7.3.1",
