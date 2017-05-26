@@ -1,3 +1,4 @@
+'use strict'
 import React from 'react'
 import {ipcRenderer} from 'electron'
 
@@ -9,7 +10,6 @@ export default class FindInPage extends React.Component {
       resultMatches: this.props.resultMatches
     }
     this.handleChange = this.handleChange.bind(this)
-    this.findPrevious = this.findPrevious.bind(this)
     this.findNext = this.findNext.bind(this)
     this.resultMatches = this.resultMatches.bind(this)
   }
@@ -19,10 +19,6 @@ export default class FindInPage extends React.Component {
       contnet: ev.target.value
     })
     ipcRenderer.send('findString', ev.target.value)
-  }
-
-  findPrevious (ev, arg) {
-    ipcRenderer.send('findPrevious', 'previous')
   }
 
   findNext (ev, arg) {
@@ -48,20 +44,18 @@ export default class FindInPage extends React.Component {
       position: 'relative'
     }
     const inputStyle = {
-      width:'30%'
+      width:'40%'
     }
-    const labelStyle = {
-      width:'10%'
+    const resultMatchesStyle = {
+      width:'25%'
     }
-
 
     return (
       <div style={divStyle}>
         <input style={inputStyle} value={this.state.content} onChange={this.handleChange.bind(this)} />
-        <input style={labelStyle} value={this.state.resultMatches} onChange={this.resultMatches.bind(this)} disabled/>
-        <button onClick={this.findPrevious.bind(this)}> previous </button>
-        <button onClick={this.findNext.bind(this)}> next </button>
-        <button onClick={this.stopFind.bind(this)}> close </button>
+        <input style={resultMatchesStyle} value={this.state.resultMatches} onChange={this.resultMatches.bind(this)} disabled/>
+        <button onClick={this.findNext.bind(this)}> Find </button>
+        <button onClick={this.stopFind.bind(this)}>  Close </button>
       </div>
     )
   }

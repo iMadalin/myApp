@@ -148,11 +148,7 @@ export default class TabsPane extends React.Component {
           <TextArea style={style} id={tab.tabKey} content={tab.content} />
         </TabPane>
       )
-    }).concat([
-      <TabPane
-        tab={<a style={{ color: 'black', cursor: 'pointer' }} onClick={this.addTab}> + addTab</a>}
-       />
-    ])
+    })
   }
 
   addTab (e) {

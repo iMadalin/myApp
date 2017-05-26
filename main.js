@@ -7,6 +7,7 @@ const url = require('url')
 const defaultMenu = require('electron-default-menu')
 const fs = require('fs')
 const storage = require('./storage')
+const {webContents} = require('electron')
 
 /* function getAppSize () {
   let size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -25,7 +26,6 @@ let findWindow
 app.on('ready', function createWindow () {
   // Create browser window
   // mainWindow = new BrowserWindow(getAppSize())
-
   // Load index.html
   // mainWindow.loadURL('file://' + __dirname + '/app/index.html')
   let size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -45,14 +45,22 @@ app.on('ready', function createWindow () {
     content: lastWindowState.content
   })
 
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, '/app/index.html'),
+    protocal: 'file:',
+    slashes: true
+  }))
+
   findWindow = new BrowserWindow({
     x: lastWindowState.x + 30,
     y: lastWindowState.y + 70,
     width: 300,
-    height: 30,
+    height: 20,
     show: false,
     frame: false,
-    parent: mainWindow
+    parent: mainWindow,
+    resize: false
+
   })
   findWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/find.html'),
@@ -63,11 +71,6 @@ app.on('ready', function createWindow () {
   if (lastWindowState.maximized) {
     mainWindow.maximize()
   }
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, '/app/index.html'),
-    protocal: 'file:',
-    slashes: true
-  }))
   mainWindow.on('close', function () {
     let bounds = mainWindow.getBounds()
 
@@ -101,6 +104,7 @@ function tabName (name) {
 
 let newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
+    console.log(mainWindow.webContents)
 }
 
 let showOpen = function () {
@@ -149,7 +153,6 @@ let saveFile = function () {
     })
   } else {
     fs.writeFileSync(currentPath, content)
-  //  tabName(currentPath)
   }
 }
 
@@ -182,23 +185,20 @@ ipcMain.on('findString', (event, str) => {
       }
       if (result.finalUpdate) {
         this.result_string = `${this.active} of ${result.matches}`
-        mainWindow.webContents.send('resultMatches', this.result_string)
+        findWindow.webContents.send('resultMatches', this.result_string)
       }
     })
   }
 })
 
-ipcMain.on('findPrevious', (event, str) => {
-  mainWindow.webContents.findInPage(previousString, {findPrevious: true})
-  if (activeMatchOrdinal === 1) {
-    activeMatchOrdinal = resultMatches
-  } else {
-    activeMatchOrdinal -= 1
-  }
+ipcMain.on('replaceString', (event,str)=> {
+  ipcMain.on('replace', (event,r) => {
+    mainWindow.webContents.replace(str)
+  })
 })
 
 ipcMain.on('findNext', (event, str) => {
-  mainWindow.webContents.findInPage(previousString, {findNext: true})
+  mainWindow.webContents.findInPage(previousString, {findNext: true}, {wordStart: true})
   if (activeMatchOrdinal === resultMatches) {
     activeMatchOrdinal = 1
   } else {
