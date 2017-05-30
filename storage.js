@@ -4,6 +4,7 @@ const {app} = require('electron')
 
 var data = null
 var dataFilePath = path.join(app.getPath('userData'), 'session.json')
+
 function load () {
   if (data !== null) {
     return
@@ -14,14 +15,17 @@ function load () {
   }
   data = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'))
 }
+
 function save () {
   fs.writeFileSync(dataFilePath, JSON.stringify(data))
 }
+
 exports.set = function (key, value) {
   load()
   data[key] = value
   save()
 }
+
 exports.get = function (key) {
   load()
   var value = null
@@ -30,6 +34,7 @@ exports.get = function (key) {
   }
   return value
 }
+
 exports.unset = function (key) {
   load()
   if (key in data) {

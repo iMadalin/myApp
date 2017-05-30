@@ -24,6 +24,7 @@
     "webpack": "^2.3.2"
   },
   "dependencies": {
+    "apeman-react-button": "^4.0.9",
     "electron-config": "^1.0.0",
     "electron-default-menu": "^1.0.0",
     "electron-in-page-search": "^1.2.3",
@@ -32,6 +33,7 @@
     "rc-tabs": "^7.3.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-google-button": "^0.3.0",
     "react-split-pane": "^0.1.61"
   }
 }

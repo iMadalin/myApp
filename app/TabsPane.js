@@ -6,17 +6,14 @@ import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
 import {ipcRenderer} from 'electron'
 import fs from 'fs'
 import localStorage from 'localStorage'
+import {ApButtonStyle, ApButton} from 'apeman-react-button'
 
-// We may also want to pass the key, to ease copying
 function TabData (title, path, key = undefined, content = '') {
   this.tabKey = key || 'tab_' + Date.now()
   this.tabTitle = title || 'untitled'
   this.filePath = path || ''
   this.content = content
 
-  // this could be a hash corresponding to the last known content
-  // by computing the current hash and comparing it to this,
-  // we know if the content we're displaying is saved
   this.oldContent = 0
 }
 
@@ -164,9 +161,6 @@ export default class TabsPane extends React.Component {
 
   removeTab (t, e) {
     e.stopPropagation()
-  //  if (newState.length === 1) {
-  //     return;
-  //  }
     let activeKey = this.state.activeKey
     const tabs = this.state.tabs.filter((tab) => {
       if (tab.tabKey !== t) {
@@ -190,9 +184,15 @@ export default class TabsPane extends React.Component {
       <Tabs style={style}
         renderTabBar={() => <ScrollableInkTabBar
           extraContent={
-            <button onClick={this.addTab}>+addTab</button>
-                 }
-               />}
+            <div style={style}>
+              <ApButtonStyle highlightColor='#00b2ee' />
+              <ApButton onClick={this.addTab} >
+                +
+              </ApButton>
+            </div>
+          }
+          />
+        }
         activeKey={this.state.activeKey}
         renderTabContent={() =>
           <TabContent style={textAreaStyle} />

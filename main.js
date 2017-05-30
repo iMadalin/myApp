@@ -7,27 +7,12 @@ const url = require('url')
 const defaultMenu = require('electron-default-menu')
 const fs = require('fs')
 const storage = require('./storage')
-const {webContents} = require('electron')
+const {document} = require('electron')
 
-/* function getAppSize () {
-  let size = electron.screen.getPrimaryDisplay().workAreaSize
-  let maxDimension = Math.max(size.width, size.height)
-
-  return {
-    width: maxDimension * 0.65,
-    height: maxDimension * 0.4
-  }
-} */
 let mainWindow
 let findWindow
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 
 app.on('ready', function createWindow () {
-  // Create browser window
-  // mainWindow = new BrowserWindow(getAppSize())
-  // Load index.html
-  // mainWindow.loadURL('file://' + __dirname + '/app/index.html')
   let size = electron.screen.getPrimaryDisplay().workAreaSize
   let lastWindowState = storage.get('lastWindowState')
   if (lastWindowState === null) {
@@ -50,17 +35,15 @@ app.on('ready', function createWindow () {
     protocal: 'file:',
     slashes: true
   }))
-
   findWindow = new BrowserWindow({
     x: lastWindowState.x + 30,
     y: lastWindowState.y + 70,
-    width: 300,
-    height: 20,
+    width: 350,
+    height: 60,
     show: false,
     frame: false,
     parent: mainWindow,
     resize: false
-
   })
   findWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/find.html'),
@@ -104,7 +87,7 @@ function tabName (name) {
 
 let newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
-    console.log(mainWindow.webContents)
+  console.log(mainWindow.webContents)
 }
 
 let showOpen = function () {
@@ -115,18 +98,17 @@ let showOpen = function () {
       let f = fileNames[0]
       if (f === undefined) return
       readFile(fileNames[0])
-
       let ipc = require('electron').ipcMain
       ipc.on('invokeAction', function (event) {
         let result = readFile(fileNames[0])
         event.sender.send('actionReply', result)
       })
-
       let tabTitle = tabName(fileNames[0])
       mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
     }
   })
 }
+
 function readFile (filepath) {
   fs.readFile(filepath, 'utf-8', (err, data) => {
     if (err) {
@@ -134,6 +116,7 @@ function readFile (filepath) {
     }
   })
 }
+
 let currentPath = ''
 
 ipcMain.on('tabPath', (event, path) => {
@@ -174,7 +157,7 @@ let resultMatches
 ipcMain.on('findString', (event, str) => {
   activeMatchOrdinal = 1
   if (str === '') {
-    return
+
   } else {
     previousString = str
     mainWindow.webContents.findInPage(str)
@@ -191,8 +174,8 @@ ipcMain.on('findString', (event, str) => {
   }
 })
 
-ipcMain.on('replaceString', (event,str)=> {
-  ipcMain.on('replace', (event,r) => {
+ipcMain.on('replaceString', (event, str) => {
+  ipcMain.on('replace', (event, r) => {
     mainWindow.webContents.replace(str)
   })
 })
@@ -214,6 +197,11 @@ ipcMain.on('stopFind', (event, str) => {
 let find = function () {
   findWindow.show()
 }
+
+let newLink = function () {
+  mainWindow.webContents.send('newLink', 'insert')
+}
+
 
 const menu = defaultMenu(app, shell)
 
@@ -251,6 +239,27 @@ menu.splice(0, 0, {
       click: () => { app.quit() }
     }
   ]
+})
+
+menu.splice(1, 0, {
+label: 'Insert',
+submenu: [
+  {
+    label: 'New Link',
+    click: function() { newLink() }
+  },
+  {
+    label: 'New Joint',
+    submenu:[
+      {
+      label: 'bla',
+    },
+      {
+      label: 'blaBla',
+      }
+    ]
+  },
+]
 })
 
 Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
