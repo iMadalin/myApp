@@ -8,6 +8,7 @@ import fs from 'fs'
 import localStorage from 'localStorage'
 import {ApButtonStyle, ApButton} from 'apeman-react-button'
 
+
 function TabData (title, path, key = undefined, content = '') {
   this.tabKey = key || 'tab_' + Date.now()
   this.tabTitle = title || 'untitled'
@@ -108,10 +109,32 @@ export default class TabsPane extends React.Component {
     })
   };
 
+  newLink() {
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey) {
+      let index = 0
+      let fileName = "./lib/newLink.txt"
+      let data = fs.readFileSync(fileName, "utf8")
+      let textarea = document.getElementById("output_field");
+      index = textarea.selectionStart
+      console.log(index)
+      this.state.tabs[i].content = this.state.tabs[i].content.slice(0,index) + data + this.state.tabs[i].content.slice(index)
+      ipcRenderer.send('asynchronous-message', this.state.tabs[i].content )
+    }
+  }
+  this.setState({
+    tabs: this.state.tabs,
+  })
+  this.forceUpdate()
+  console.log(this.state.tabs)
+  ipcRenderer.send('tabPath', '')
+}
+
   componentDidMount () {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
+    ipcRenderer.on('newLink', this.newLink.bind(this))
     setInterval(function () {
       this.setState({
         tabs: this.state.tabs

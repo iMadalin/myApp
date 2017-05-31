@@ -72,6 +72,7 @@ let content = ''
 
 ipcMain.on('asynchronous-message', (event, contents) => {
   content = contents
+  console.log(content)
 })
 
 function tabName (name) {
@@ -87,7 +88,6 @@ function tabName (name) {
 
 let newFile = function () {
   mainWindow.webContents.send('NewFileMessage', 'untitled')
-  console.log(mainWindow.webContents)
 }
 
 let showOpen = function () {
