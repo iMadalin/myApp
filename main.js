@@ -7,7 +7,6 @@ const url = require('url')
 const defaultMenu = require('electron-default-menu')
 const fs = require('fs')
 const storage = require('./storage')
-const {document} = require('electron')
 
 let mainWindow
 let findWindow
@@ -70,9 +69,10 @@ app.on('ready', function createWindow () {
 let session = []
 let content = ''
 
-ipcMain.on('asynchronous-message', (event, contents) => {
+ipcMain.on('asynchronous-message', (ev, contents) => {
   content = contents
-  console.log(content)
+
+  // console.log(contents)
 })
 
 function tabName (name) {
@@ -198,10 +198,10 @@ let find = function () {
   findWindow.show()
 }
 
-let newLink = function () {
-  mainWindow.webContents.send('newLink', 'insert')
+let Insert = function (path) {
+  console.log(path)
+  mainWindow.webContents.send('newLink', content, path)
 }
-
 
 const menu = defaultMenu(app, shell)
 
@@ -242,24 +242,78 @@ menu.splice(0, 0, {
 })
 
 menu.splice(1, 0, {
-label: 'Insert',
-submenu: [
-  {
-    label: 'New Link',
-    click: function() { newLink() }
-  },
-  {
-    label: 'New Joint',
-    submenu:[
-      {
-      label: 'bla',
+  label: 'Insert',
+  submenu: [
+    {
+      label: 'New Link',
+      click: function () { Insert('./lib/newLink.xml') }
     },
-      {
-      label: 'blaBla',
-      }
-    ]
-  },
-]
+    {
+      label: 'New Joint',
+      submenu: [
+        {
+          label: 'Revolute',
+          click: function () { Insert('./lib/Revolute.xml') }
+        },
+        {
+          label: 'Slider',
+          click: function () { Insert('./lib/Slider.xml') }
+        },
+        {
+          label: 'Cylindrical',
+          click: function () { Insert('./lib/Cylindrical.xml') }
+        },
+        {
+          label: 'Screw',
+          click: function () { Insert('./lib/Screw.xml') }
+        },
+        {
+          label: 'Universal',
+          click: function () { Insert('./lib/Universal.xml') }
+        },
+        {
+          label: 'Spherical',
+          click: function () { Insert('./lib/Spherical.xml') }
+        },
+        {
+          label: 'Planar',
+          click: function () { Insert('./lib/Planar.xml') }
+        },
+        {
+          label: 'Fixed',
+          click: function () { Insert('./lib/Fixed.xml') }
+        },
+        {
+          label: 'Constant Velocity',
+          click: function () { Insert('./lib/ConstantVelocity.xml') }
+        },
+        {
+          label: 'Atpoint',
+          click: function () { Insert('./lib/Atpoint.xml') }
+        },
+        {
+          label: 'Inline',
+          click: function () { Insert('./lib/Inline.xml') }
+        },
+        {
+          label: 'Inplane',
+          click: function () { Insert('./lib/Inplane.xml') }
+        },
+        {
+          label: 'Orientation',
+          click: function () { Insert('./lib/Orientation.xml') }
+        },
+        {
+          label: 'Parallel',
+          click: function () { Insert('./lib/Parallel.xml') }
+        },
+        {
+          label: 'Perpendicular',
+          click: function () { Insert('./lib/Perpendicular.xml') }
+        }
+      ]
+    }
+  ]
 })
 
 Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
