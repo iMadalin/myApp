@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Text editor for .mdef text fiels",
   "main": "./main.js",
-  "repository": "https://iMadalin@bitbucket.org/iMadalin/texteditor.git",
+  "repository": "https://github.com/iMadalin/myApp",
   "scripts": {
     "test": "standard",
     "start": "electron .",

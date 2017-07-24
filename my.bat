@@ -1,2 +1,3 @@
-dir "D:\MdefTextEditor"
-node "D:\cObject\test.js" 
+D:\mdefsolve\Exec\MdefSolve.exe  E:\as_mdef.mdef
+
+

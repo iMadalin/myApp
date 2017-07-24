@@ -162,6 +162,7 @@ export default class TabsPane extends React.Component {
         width: '100%',
         resize: 'none'
       }
+
       return (
         <TabPane style={style}
           tab={<span>{tabb.tabTitle}
