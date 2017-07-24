@@ -3,11 +3,7 @@
 import React from 'react'
 
 export default class Cons extends React.Component {
-
-
-
-  render() {
-
+  render () {
     const divStyle = {
       flex: 1,
       position: 'relative',
@@ -23,9 +19,9 @@ export default class Cons extends React.Component {
       width: '100%',
       resize: 'none'
     }
-    return(
-      <div style = {divStyle}>
-        <textarea id = 'output' style = {textareaStyle} disabled/>
+    return (
+      <div style={divStyle}>
+        <textarea id='output' style={textareaStyle} disabled />
       </div>
     )
   }

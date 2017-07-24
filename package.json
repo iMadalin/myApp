@@ -35,7 +35,6 @@
     "rc-tabs": "^7.3.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-split-pane": "^0.1.61",
-    "terminal-in-react": "^3.3.1"
+    "react-split-pane": "^0.1.61"
   }
 }

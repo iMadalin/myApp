@@ -7,7 +7,6 @@ import Validate from './validate'
 import Solve from './solve'
 import Cons from './Console'
 
-
 export default class App extends React.Component {
   render () {
     return (
@@ -15,11 +14,12 @@ export default class App extends React.Component {
         <SplitPane
           split='vertical'
           minSize={200}
+          maxSize={500}
           defaultSize={200}>
           <div>
             <a>
-            <Validate/>
-            <Solve/>
+              <Validate />
+              <Solve />
             </a>
           </div>
           <SplitPane
@@ -28,8 +28,8 @@ export default class App extends React.Component {
             defaultSize={500}
             >
             <TabsPane />
-            <div style = {{height: '100%'}}>
-            <Cons/>
+            <div style={{height: '100%'}}>
+              <Cons />
             </div>
           </SplitPane>
         </SplitPane>
