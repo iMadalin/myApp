@@ -19,6 +19,7 @@
     "babel-preset-react": "^6.23.0",
     "babelify": "^7.3.0",
     "electron": "^1.6.2",
+    "node-loader": "^0.6.0",
     "react-devtools": "^2.1.0",
     "standard": "^9.0.2",
     "webpack": "^2.3.2"
@@ -30,10 +31,11 @@
     "electron-in-page-search": "^1.2.3",
     "electron-tabs": "^0.5.1",
     "localStorage": "^1.0.3",
+    "node-gyp": "^3.6.2",
     "rc-tabs": "^7.3.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-google-button": "^0.3.0",
-    "react-split-pane": "^0.1.61"
+    "react-split-pane": "^0.1.61",
+    "terminal-in-react": "^3.3.1"
   }
 }

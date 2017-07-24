@@ -111,7 +111,6 @@ export default class TabsPane extends React.Component {
     for (let i = 0; i < this.state.tabs.length; i++) {
       if (this.state.tabs[i].tabKey === this.state.activeKey) {
         let index = 0
-      //  let fileName = './lib/newLink.txt'
         let data = fs.readFileSync(path, 'utf8')
         let textarea = document.getElementById(this.state.tabs[i].tabKey)
         index = textarea.selectionStart
@@ -189,7 +188,6 @@ export default class TabsPane extends React.Component {
   }
 
   onChangeTextArea (ev) {
-    console.log('onChangeTextArea')
     let tabs = this.state.tabs
     for (let i = 0; i < this.state.tabs.length; i++) {
       if (this.state.tabs[i].tabKey === this.state.activeKey) {
