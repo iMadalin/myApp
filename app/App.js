@@ -17,10 +17,9 @@ export default class App extends React.Component {
           maxSize={500}
           defaultSize={200}>
           <div>
-            <a>
               <Validate />
+              
               <Solve />
-            </a>
           </div>
           <SplitPane
             split='horizontal'

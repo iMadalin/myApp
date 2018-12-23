@@ -1,7 +1,7 @@
 'use strict'
 import React from 'react'
 import {ipcRenderer} from 'electron'
-import {ApButtonStyle, ApButton} from 'apeman-react-button'
+import {AwesomeButton} from 'react-awesome-button'
 
 export default class FindInPage extends React.Component {
   constructor (props) {
@@ -54,10 +54,9 @@ export default class FindInPage extends React.Component {
       <div style={divStyle}>
         <input style={inputStyle} value={this.state.content} onChange={this.handleChange.bind(this)} />
         <input style={resultMatchesStyle} value={this.state.resultMatches} onChange={this.resultMatches.bind(this)} disabled />
-        <ApButtonStyle highlightColor='#00b2ee' />
         <a>
-          <ApButton onClick={this.findNext.bind(this)} simple > Next </ApButton>
-          <ApButton onClick={this.stopFind.bind(this)} simple > Close </ApButton>
+          <AwesomeButton onClick={this.findNext.bind(this)} simple > Next </AwesomeButton>
+          <AwesomeButton onClick={this.stopFind.bind(this)} simple > Close </AwesomeButton>
         </a>
       </div>
     )

@@ -2,10 +2,16 @@ import React from 'react'
 import Tabs, { TabPane } from 'rc-tabs'
 import TabContent from 'rc-tabs/lib/TabContent'
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, autoUpdater} from 'electron'
 import fs from 'fs'
 import localStorage from 'localStorage'
-import {ApButtonStyle, ApButton} from 'apeman-react-button'
+import {AwesomeButton} from 'react-awesome-button'
+import 'react-awesome-button/src/styles/styles.scss'
+import AceEditor from 'react-ace';
+
+import 'brace/mode/xml';
+import 'brace/theme/monokai';
+
 
 function TabData (title, path, key = undefined, content = '') {
   this.tabKey = key || 'tab_' + Date.now()
@@ -25,8 +31,12 @@ export default class TabsPane extends React.Component {
     this.handleChange = this.handleChange.bind(this)
     this.openFile = this.openFile.bind(this)
     this.saveFile = this.saveFile.bind(this)
+   // this.onChange = this.onChangeText.bind(this);
   }
 
+  onChangeText(newText){
+    ipcRenderer.send('asynchronous-message', newText)
+  }
   onChange (activeKey) {
     this.setState({
       activeKey
@@ -138,6 +148,7 @@ export default class TabsPane extends React.Component {
     setInterval(function () {
       localStorage.setItem('tab', JSON.stringify(this.state))
     }.bind(this), 1000)
+
   }
 
   TabPane () {
@@ -146,6 +157,7 @@ export default class TabsPane extends React.Component {
       overflow: 'hidden',
       height: '100%'
     }
+
     return this.state.tabs.map((tabb) => {
       const divStyle = {
         flex: 1,
@@ -154,15 +166,12 @@ export default class TabsPane extends React.Component {
         height: '100%',
         width: '100%'
       }
-      const textareaStyle = {
-        flex: 1,
-        position: 'relative',
-        outline: 'none',
-        height: '100%',
-        width: '100%',
-        resize: 'none'
-      }
 
+      const textAreaStyle = {
+        position: 'relative',
+        height: '100%',
+        width: '100%'
+      }
       return (
         <TabPane style={style}
           tab={<span>{tabb.tabTitle}
@@ -176,12 +185,30 @@ export default class TabsPane extends React.Component {
               }}
               onClick={this.removeTab.bind(this, tabb.tabKey)}
           >x</a>
+          
           </span>}
           key={tabb.tabKey}
         >
-          <div style={divStyle} >
-            <textarea id={tabb.tabKey} style={textareaStyle} value={tabb.content} onChange={this.onChangeTextArea.bind(this)} />
-          </div>
+        <div style={divStyle}>
+        <AceEditor 
+          style={textAreaStyle}
+          mode="xml"
+          theme="monokai"
+          name = {tabb.tabKey}
+          fontSize={14} 
+          showPrintMargin={true}
+          showGutter={true}
+          highlightActiveLine={true}
+          setOptions={{
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true,
+            enableSnippets: true,
+            showLineNumbers: true,
+            tabSize: 4,
+            }}
+        />
+          
+        </div>
 
         </TabPane>
       )
@@ -202,7 +229,6 @@ export default class TabsPane extends React.Component {
   }
 
   addTab (e) {
-    e.stopPropagation()
     let newTab = new TabData()
     let newTabs = this.state.tabs.concat(newTab)
     this.setState({
@@ -237,12 +263,7 @@ export default class TabsPane extends React.Component {
       <Tabs style={style}
         renderTabBar={() => <ScrollableInkTabBar
           extraContent={
-            <div style={style}>
-              <ApButtonStyle highlightColor='#00b2ee' />
-              <ApButton onClick={this.addTab} >
-                +
-              </ApButton>
-            </div>
+              <AwesomeButton action={(_element, next) => this.addTab(next)}>+</AwesomeButton>            
           }
           />
         }

@@ -1,7 +1,7 @@
 'use strict'
 
 import React from 'react'
-import {ApButton} from 'apeman-react-button'
+import {AwesomeButton} from 'react-awesome-button'
 
 export default class Validate extends React.Component {
   render () {
@@ -12,11 +12,11 @@ export default class Validate extends React.Component {
       width: '100%'
     }
     return (
-      <div style={divStyle}>
-        <ApButton>
-          Validate
-        </ApButton>
-      </div>
+     // <div style={divStyle}>
+        <AwesomeButton size="large">
+         Validate
+        </AwesomeButton>
+    //  </div>
     )
   }
 }

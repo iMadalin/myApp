@@ -1,7 +1,7 @@
 'use strict'
 
 import React from 'react'
-import {ApButton} from 'apeman-react-button'
+import {AwesomeButton} from 'react-awesome-button'
 const { exec } = require('child_process')
 
 export default class Solve extends React.Component {
@@ -29,9 +29,9 @@ export default class Solve extends React.Component {
     }
     return (
       <div style={divStyle}>
-        <ApButton onClick={this.handleClick}>
-          Solve
-        </ApButton>
+        <AwesomeButton size="large" action={(_element, next) => this.handleClick(next)}>
+         Solve
+        </AwesomeButton>
       </div>
     )
   }
