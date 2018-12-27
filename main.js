@@ -7,6 +7,15 @@ const url = require('url')
 const defaultMenu = require('electron-default-menu')
 const fs = require('fs')
 const storage = require('./storage')
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+
+
+installExtension(REACT_DEVELOPER_TOOLS).then((name) => {
+  console.log(`Added Extension:  ${name}`);
+})
+.catch((err) => {
+  console.log('An error occurred: ', err);
+});
 
 let mainWindow
 let findWindow
@@ -26,7 +35,9 @@ app.on('ready', function createWindow () {
     y: lastWindowState.y,
     width: lastWindowState.width,
     height: lastWindowState.height,
-    content: lastWindowState.content
+    content: lastWindowState.content,
+    minWidth: 1400,
+    minHeight: 800,
   })
 
   mainWindow.loadURL(url.format({

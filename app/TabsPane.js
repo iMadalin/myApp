@@ -6,12 +6,18 @@ import {ipcRenderer, autoUpdater} from 'electron'
 import fs from 'fs'
 import localStorage from 'localStorage'
 import {AwesomeButton} from 'react-awesome-button'
-import 'react-awesome-button/src/styles/styles.scss'
+import 'react-awesome-button/src/styles/themes/theme-c137'
 import AceEditor from 'react-ace';
 
 import 'brace/mode/xml';
 import 'brace/theme/monokai';
-
+import 'brace/ext/language_tools';
+import {
+  CloseButton,
+  NavButton,
+  PlusButton,
+} from 'react-svg-buttons'
+import buttonStyle from './ButtonStyle.css'
 
 function TabData (title, path, key = undefined, content = '') {
   this.tabKey = key || 'tab_' + Date.now()
@@ -24,19 +30,42 @@ function TabData (title, path, key = undefined, content = '') {
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
-    let tab = new TabData()
-    this.state = JSON.parse(localStorage.getItem('tab') || tab)
+    this.state = //{
+   //   tabs: 
+   JSON.parse(localStorage.getItem('tab'|| '{}'))
+   //   activeKey:undefined,
+   //   cursor: undefined
+   // }
     this.addTab = this.addTab.bind(this)
+    this.removeTab = this.removeTab.bind(this)
     this.onChange = this.onChange.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.openFile = this.openFile.bind(this)
     this.saveFile = this.saveFile.bind(this)
-   // this.onChange = this.onChangeText.bind(this);
+    this.onChangeText = this.onChangeText.bind(this)
+    this.newLink = this.newLink.bind(this)
+    this.onCursorChange = this.onCursorChange.bind(this)
   }
 
-  onChangeText(newText){
-    ipcRenderer.send('asynchronous-message', newText)
-  }
+ // get initialState(){
+ //   let tab = new TabData()
+ //   if(localStorage.getItem('tab')){
+ //     return JSON.parse(localStorage.getItem('tab') || '{}')
+ //   }
+ //   else{
+ //     return {
+ //       tabs: [tab],
+ //       activeKey: tab.tabKey
+ //     }
+ //   }
+ // }
+
+ onCursorChange(value) {
+   this.setState({
+   cursor: value
+   })
+ }
+
   onChange (activeKey) {
     this.setState({
       activeKey
@@ -104,7 +133,7 @@ export default class TabsPane extends React.Component {
     for (let i = 0; i < this.state.tabs.length; i++) {
       if (this.state.tabs[i].tabKey === this.state.activeKey) {
         index = i
-        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey)
+        newTab = new TabData(tabName, path, this.state.tabs[i].tabKey, this.state.tabs[i].content)
         ipcRenderer.send('tabPath', path)
       }
     }
@@ -114,29 +143,41 @@ export default class TabsPane extends React.Component {
     this.setState({
       tabs: newTabs
     })
-    ipcRenderer.send('tabPath', '')
+   // ipcRenderer.send('tabPath', '')
   };
 
   newLink (ev, arg, path) {
-    for (let i = 0; i < this.state.tabs.length; i++) {
-      if (this.state.tabs[i].tabKey === this.state.activeKey) {
-        let index = 0
+    let tab = this.state.tabs
+    for (let i = 0; i < tab.length; i++) {
+      if (tab[i].tabKey === this.state.activeKey) {
         let data = fs.readFileSync(path, 'utf8')
         let textarea = document.getElementById(this.state.tabs[i].tabKey)
-        index = textarea.selectionStart
-        console.log(index)
 
-        let tabs = this.state.tabs
+     var index = this.state.cursor.getCursor()
+     //TODO: Insert Element
+     tab[i].content = arg
+     tab[i].content =  tab[i].content.substring(index) + data +  tab[i].content.substring(index)
+     this.setState({
+       tabs: tab
+     })
+        ipcRenderer.send('asynchronous-message', tab[i].content)
 
-        tabs[i].content = arg
-        tabs[i].content = tabs[i].content.slice(0, index) + data + tabs[i].content.slice(index)
-        ipcRenderer.send('asynchronous-message', tabs[i].content)
-
-        this.setState({
-          tabs: tabs
-        })
       }
     }
+  }
+
+  onChangeText (newValue) {
+    let tab = this.state.tabs
+    for (let i = 0; i < tab.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey) {
+        tab[i].content = newValue
+      }
+      this.setState({
+        tabs: tab
+      })
+    }
+    
+    ipcRenderer.send('asynchronous-message', newValue)
   }
 
   componentDidMount () {
@@ -152,53 +193,54 @@ export default class TabsPane extends React.Component {
   }
 
   TabPane () {
-    console.log('TabPane() called')
     let style = {
       overflow: 'hidden',
-      height: '100%'
+      height: '100%',
+
     }
 
+
+
     return this.state.tabs.map((tabb) => {
-      const divStyle = {
-        flex: 1,
-        position: 'relative',
-        outline: 'none',
-        height: '100%',
-        width: '100%'
-      }
 
       const textAreaStyle = {
         position: 'relative',
         height: '100%',
-        width: '100%'
+        width: '100%' 
       }
+
       return (
-        <TabPane style={style}
-          tab={<span>{tabb.tabTitle}
-            <a
+        <TabPane 
+          tab={ <AwesomeButton style = {buttonStyle}  bubbles={true}
+          >{tabb.tabTitle}
+            <span
               style={{
-                position: 'absolute',
+                position: 'relative',
                 cursor: 'pointer',
-                color: 'red',
-                right: 5,
-                top: 0
+                top: 5,
+                left:10
               }}
-              onClick={this.removeTab.bind(this, tabb.tabKey)}
-          >x</a>
+              onClick={this.removeTab.bind(this,tabb.tabKey) }
+          ><CloseButton size = {20} color = "#ffb90f" /></span>
           
-          </span>}
+          </AwesomeButton>}
           key={tabb.tabKey}
-        >
-        <div style={divStyle}>
+          >
         <AceEditor 
           style={textAreaStyle}
-          mode="xml"
-          theme="monokai"
+          mode={'xml'}
+          theme={'monokai'}
           name = {tabb.tabKey}
           fontSize={14} 
+          onChange = { this.onChangeText }
+          onCursorChange = {(value)=> this.onCursorChange(value)}
+          value = {tabb.content}
           showPrintMargin={true}
           showGutter={true}
           highlightActiveLine={true}
+          enableBasicAutocompletion={true}
+          enableLiveAutocompletion = {true}
+          enableSnippets = {true}
           setOptions={{
             enableBasicAutocompletion: true,
             enableLiveAutocompletion: true,
@@ -206,26 +248,20 @@ export default class TabsPane extends React.Component {
             showLineNumbers: true,
             tabSize: 4,
             }}
+          editorProps={{
+            $blockScrolling: true
+          }}
         />
-          
-        </div>
-
         </TabPane>
       )
-    })
-  }
-
-  onChangeTextArea (ev) {
-    let tabs = this.state.tabs
-    for (let i = 0; i < this.state.tabs.length; i++) {
-      if (this.state.tabs[i].tabKey === this.state.activeKey) {
-        tabs[i].content = ev.target.value
-        this.setState({
-          tabs: tabs
-        })
-      }
-    }
-    ipcRenderer.send('asynchronous-message', ev.target.value)
+    }).concat([
+      <TabPane
+      tab={ <PlusButton  onClick={(_element, next) => this.addTab(next)} color="#ffb90f" thickness={3} style={{position: 'relative', cursor: 'pointer', top: 4 }} />}
+        disabled={true}
+        key="__add"
+      />,
+    ])
+    
   }
 
   addTab (e) {
@@ -240,31 +276,49 @@ export default class TabsPane extends React.Component {
 
   removeTab (t, e) {
     e.stopPropagation()
-    let activeKey = this.state.activeKey
-    const tabs = this.state.tabs.filter((tab) => {
+    if (this.state.tabs.length === 1) {
+      alert('de ce vrei sa stergi singurul tab, acum trebuie sa il inlocuiesc cu unul nou!');
+      return;
+    }
+    let foundIndex = 0;
+    const afterRemove = this.state.tabs.filter((tab,i) => {
       if (tab.tabKey !== t) {
-        return true
+        return true;
+      }   
+      if(i === this.state.tabs.length-1){
+        foundIndex = i-1
       }
-    })
+      else{
+        foundIndex = i;
+      }
+    });
+    let activeKey = this.state.activeKey;
+    if (activeKey === t) {
+       activeKey = afterRemove[foundIndex].tabKey;
+    }
+   
     this.setState({
-      tabs: tabs,
+      tabs: afterRemove,
       activeKey
-    })
+    });
   }
 
   render () {
     let style = {
-      overflow: 'hidden'
+      overflow: 'hidden',
     }
     let textAreaStyle = {
       height: '94%'
     }
     return (
       <Tabs style={style}
+      forceRender ={true}
+      animatedWithMargin={true}
+      activeKey={this.state.activeKey}
         renderTabBar={() => <ScrollableInkTabBar
           extraContent={
-              <AwesomeButton action={(_element, next) => this.addTab(next)}>+</AwesomeButton>            
-          }
+              <PlusButton onClick={(_element, next) => this.addTab(next)} thickness={3} color="#ffb90f" style={{position: 'relative', cursor: 'pointer', top: 10 }}></PlusButton>           
+          } 
           />
         }
         activeKey={this.state.activeKey}
@@ -274,6 +328,7 @@ export default class TabsPane extends React.Component {
         onChange={this.onChange}
              >
         {this.TabPane()}
+        
       </Tabs>
     )
   }
