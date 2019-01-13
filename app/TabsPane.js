@@ -7,6 +7,7 @@ import fs from 'fs'
 import localStorage from 'localStorage'
 import {AwesomeButton} from 'react-awesome-button'
 import 'react-awesome-button/src/styles/themes/theme-c137'
+import brace from 'brace';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/xml';
@@ -43,7 +44,7 @@ export default class TabsPane extends React.Component {
     this.openFile = this.openFile.bind(this)
     this.saveFile = this.saveFile.bind(this)
     this.onChangeText = this.onChangeText.bind(this)
-    this.newLink = this.newLink.bind(this)
+    this.insertElement = this.insertElement.bind(this)
     this.onCursorChange = this.onCursorChange.bind(this)
   }
 
@@ -146,22 +147,15 @@ export default class TabsPane extends React.Component {
    // ipcRenderer.send('tabPath', '')
   };
 
-  newLink (ev, arg, path) {
+  insertElement (ev, arg, path) {
     let tab = this.state.tabs
     for (let i = 0; i < tab.length; i++) {
       if (tab[i].tabKey === this.state.activeKey) {
         let data = fs.readFileSync(path, 'utf8')
-        let textarea = document.getElementById(this.state.tabs[i].tabKey)
-
-     var index = this.state.cursor.getCursor()
-     //TODO: Insert Element
-     tab[i].content = arg
-     tab[i].content =  tab[i].content.substring(index) + data +  tab[i].content.substring(index)
-     this.setState({
-       tabs: tab
-     })
-        ipcRenderer.send('asynchronous-message', tab[i].content)
-
+   
+        var editor = ace.edit(this.state.activeKey);
+        editor.session.insert(editor.getCursorPosition(), data )
+       // ipcRenderer.send('asynchronous-message', tab[i].content)
       }
     }
   }
@@ -184,8 +178,7 @@ export default class TabsPane extends React.Component {
     ipcRenderer.on('NewFileMessage', this.handleChange.bind(this))
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
-    ipcRenderer.on('newLink', this.newLink.bind(this))
-
+    ipcRenderer.on('insertElement', this.insertElement.bind(this))
     setInterval(function () {
       localStorage.setItem('tab', JSON.stringify(this.state))
     }.bind(this), 1000)

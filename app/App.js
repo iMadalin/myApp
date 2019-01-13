@@ -92,7 +92,7 @@ export default class App extends React.Component {
     return (
       <div>  
         <SplitPane
-          split='vertical'
+          split={'vertical'}
           minSize={this.state.navWidth}
           maxSize={this.state.navWidth}
           defaultSize={this.state.navWidth}

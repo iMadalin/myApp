@@ -211,7 +211,7 @@ let find = function () {
 
 let Insert = function (path) {
   console.log(path)
-  mainWindow.webContents.send('newLink', content, path)
+  mainWindow.webContents.send('insertElement', content, path)
 }
 
 const menu = defaultMenu(app, shell)
@@ -256,7 +256,7 @@ menu.splice(1, 0, {
   label: 'Insert',
   submenu: [
     {
-      label: 'New Link',
+      label: 'New Motion Body',
       click: function () { Insert('./lib/newLink.xml') }
     },
     {
