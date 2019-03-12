@@ -19,6 +19,7 @@ installExtension(REACT_DEVELOPER_TOOLS).then((name) => {
 
 let mainWindow
 let findWindow
+let startWindow
 
 app.on('ready', function createWindow () {
   let size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -36,8 +37,10 @@ app.on('ready', function createWindow () {
     width: lastWindowState.width,
     height: lastWindowState.height,
     content: lastWindowState.content,
-    minWidth: 1400,
-    minHeight: 800,
+    minWidth: 800,
+    minHeight: 400,
+    darkTheme: true,
+    backgroundColor: '#373a47'
   })
 
   mainWindow.loadURL(url.format({
@@ -45,6 +48,27 @@ app.on('ready', function createWindow () {
     protocal: 'file:',
     slashes: true
   }))
+
+  startWindow = new BrowserWindow({
+    parent: mainWindow,
+    width: 800,
+    height: 200,
+    show: true,
+    frame: false,
+    resize: true,
+    center: true,
+    minWidth: 800,
+    minHeight: 200,
+    maxWidth: 800,
+    maxHeight: 200,
+    backgroundColor: '#373a47',
+  })
+  startWindow.loadURL(url.format({
+    pathname: path.join(__dirname, '/app/start.html'),
+    protocal: 'file:',
+    slashes: true,
+  }))
+
   findWindow = new BrowserWindow({
     x: lastWindowState.x + 30,
     y: lastWindowState.y + 70,
@@ -82,8 +106,6 @@ let content = ''
 
 ipcMain.on('asynchronous-message', (ev, contents) => {
   content = contents
-
-  // console.log(contents)
 })
 
 function tabName (name) {
@@ -116,6 +138,7 @@ let showOpen = function () {
       })
       let tabTitle = tabName(fileNames[0])
       mainWindow.webContents.send('OpenFile', tabTitle, fileNames)
+      mainWindow.webContents.send('currentPath', path)
     }
   })
 }
@@ -132,7 +155,30 @@ let currentPath = ''
 
 ipcMain.on('tabPath', (event, path) => {
   currentPath = path
+  mainWindow.webContents.send('currentPath', path)
 })
+
+ipcMain.on('startPageOkButton', (ev,workDir, refUnit)  => {
+  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir,refUnit)
+  startWindow.close()
+})
+
+ipcMain.on('brosweWorkDirButtonClicked', (ev)  => {
+  const selectedPath = dialog.showOpenDialog({
+		properties: ['openDirectory']
+
+  })
+  startWindow.webContents.send('selectedWorkDirPath', selectedPath)
+})
+
+ipcMain.on('brosweRefUnitButtonClicked', (ev)  => {
+  const selectedPath = dialog.showOpenDialog({
+		properties: ['openDirectory']
+
+  })
+  startWindow.webContents.send('selectedRefUnitPath', selectedPath)
+})
+
 
 let saveFile = function () {
   if (currentPath === '') {
@@ -210,7 +256,6 @@ let find = function () {
 }
 
 let Insert = function (path) {
-  console.log(path)
   mainWindow.webContents.send('insertElement', content, path)
 }
 
@@ -256,7 +301,7 @@ menu.splice(1, 0, {
   label: 'Insert',
   submenu: [
     {
-      label: 'New Motion Body',
+      label: 'New Link',
       click: function () { Insert('./lib/newLink.xml') }
     },
     {

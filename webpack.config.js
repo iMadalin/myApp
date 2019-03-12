@@ -2,7 +2,7 @@ let path = require('path')
 
 module.exports = {
   mode: 'development',
-  entry: [ './app/index.js', './app/find.js' ],
+  entry: [ './app/startParent.js','./app/index.js', './app/find.js' ],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',

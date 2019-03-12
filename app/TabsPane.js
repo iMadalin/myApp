@@ -2,12 +2,11 @@ import React from 'react'
 import Tabs, { TabPane } from 'rc-tabs'
 import TabContent from 'rc-tabs/lib/TabContent'
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
-import {ipcRenderer, autoUpdater} from 'electron'
+import {ipcRenderer} from 'electron'
 import fs from 'fs'
 import localStorage from 'localStorage'
 import {AwesomeButton} from 'react-awesome-button'
 import 'react-awesome-button/src/styles/themes/theme-c137'
-import brace from 'brace';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/xml';
@@ -15,7 +14,6 @@ import 'brace/theme/monokai';
 import 'brace/ext/language_tools';
 import {
   CloseButton,
-  NavButton,
   PlusButton,
 } from 'react-svg-buttons'
 import buttonStyle from './ButtonStyle.css'
@@ -31,12 +29,14 @@ function TabData (title, path, key = undefined, content = '') {
 export default class TabsPane extends React.Component {
   constructor (props) {
     super(props)
-    this.state = //{
+    this.state = this.initialState
+    //{
    //   tabs: 
-   JSON.parse(localStorage.getItem('tab'|| '{}'))
+  // JSON.parse(localStorage.getItem('tab'|| '{}'))
    //   activeKey:undefined,
    //   cursor: undefined
    // }
+    ipcRenderer.send('tabPath', this.state.path)
     this.addTab = this.addTab.bind(this)
     this.removeTab = this.removeTab.bind(this)
     this.onChange = this.onChange.bind(this)
@@ -48,18 +48,19 @@ export default class TabsPane extends React.Component {
     this.onCursorChange = this.onCursorChange.bind(this)
   }
 
- // get initialState(){
- //   let tab = new TabData()
- //   if(localStorage.getItem('tab')){
- //     return JSON.parse(localStorage.getItem('tab') || '{}')
- //   }
- //   else{
- //     return {
- //       tabs: [tab],
- //       activeKey: tab.tabKey
- //     }
- //   }
- // }
+  get initialState(){
+    let tab = new TabData()
+    if(localStorage.getItem('tab')){
+      return JSON.parse(localStorage.getItem('tab') || '{}')
+    }
+    else{
+      return {
+        tabs: [tab],
+        activeKey: tab.tabKey,
+        filePath: tab.filePath
+      }
+    }
+  }
 
  onCursorChange(value) {
    this.setState({
@@ -80,8 +81,7 @@ export default class TabsPane extends React.Component {
     if (path === '') {
       ipcRenderer.send('tabPath', path)
     } else {
-      let tabPath = path.toString()
-      ipcRenderer.send('tabPath', tabPath)
+      ipcRenderer.send('tabPath', path.toString())
     }
   };
 
@@ -111,6 +111,7 @@ export default class TabsPane extends React.Component {
       this.setState({
         activeKey: key
       })
+      ipcRenderer.send('tabPath', path.toString())
     } else {
       let data
       try {
@@ -144,7 +145,7 @@ export default class TabsPane extends React.Component {
     this.setState({
       tabs: newTabs
     })
-   // ipcRenderer.send('tabPath', '')
+    ipcRenderer.send('tabPath', '')
   };
 
   insertElement (ev, arg, path) {
@@ -155,7 +156,6 @@ export default class TabsPane extends React.Component {
    
         var editor = ace.edit(this.state.activeKey);
         editor.session.insert(editor.getCursorPosition(), data )
-       // ipcRenderer.send('asynchronous-message', tab[i].content)
       }
     }
   }
@@ -182,8 +182,10 @@ export default class TabsPane extends React.Component {
     setInterval(function () {
       localStorage.setItem('tab', JSON.stringify(this.state))
     }.bind(this), 1000)
-
   }
+
+   
+
 
   TabPane () {
     let style = {
@@ -213,18 +215,20 @@ export default class TabsPane extends React.Component {
                 top: 5,
                 left:10
               }}
+              onMouseOver={console.log('Over')}
               onClick={this.removeTab.bind(this,tabb.tabKey) }
           ><CloseButton size = {20} color = "#ffb90f" /></span>
           
           </AwesomeButton>}
           key={tabb.tabKey}
+          
           >
         <AceEditor 
           style={textAreaStyle}
           mode={'xml'}
           theme={'monokai'}
           name = {tabb.tabKey}
-          fontSize={14} 
+          fontSize={18} 
           onChange = { this.onChangeText }
           onCursorChange = {(value)=> this.onCursorChange(value)}
           value = {tabb.content}
@@ -292,26 +296,30 @@ export default class TabsPane extends React.Component {
    
     this.setState({
       tabs: afterRemove,
-      activeKey
+      activeKey: activeKey
     });
+    ipcRenderer.send('tabPath', afterRemove[foundIndex].filePath)
   }
 
   render () {
     let style = {
-      overflow: 'hidden',
+      height: "100%",
+      overflow: 'none',
     }
     let textAreaStyle = {
-      height: '94%'
+      height: '90%'
     }
     return (
       <Tabs style={style}
+      destroyInactiveTabPane
       forceRender ={true}
       animatedWithMargin={true}
       activeKey={this.state.activeKey}
         renderTabBar={() => <ScrollableInkTabBar
           extraContent={
               <PlusButton onClick={(_element, next) => this.addTab(next)} thickness={3} color="#ffb90f" style={{position: 'relative', cursor: 'pointer', top: 10 }}></PlusButton>           
-          } 
+          }
+          
           />
         }
         activeKey={this.state.activeKey}
@@ -326,3 +334,4 @@ export default class TabsPane extends React.Component {
     )
   }
 }
+

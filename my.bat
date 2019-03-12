@@ -1,3 +1,3 @@
-D:\mdefsolve\Exec\MdefSolve.exe  E:\as_mdef.mdef
+D:\mdefsolve\Exec\MdefSolve.exe -solve E:\as_mdef.mdef
 
 

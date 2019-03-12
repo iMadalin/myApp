@@ -17,7 +17,11 @@ export default class Cons extends React.Component {
       outline: 'none',
       height: '100%',
       width: '100%',
-      resize: 'none'
+      resize: 'none',
+      background: '#373a47',
+      color: "#ffffff",
+      fontSize: "12pt"
+      
     }
     return (
       <div style={divStyle}>

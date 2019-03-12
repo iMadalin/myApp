@@ -1,38 +1,60 @@
 'use strict'
 
 import React from 'react'
+import {ipcRenderer} from 'electron'
+import {AwesomeButton} from 'react-awesome-button'
 import SplitPane from 'react-split-pane'
 import TabsPane from './TabsPane'
 import Validate from './validate'
 import Solve from './solve'
 import Cons from './Console'
-import { slide as Menu } from 'react-burger-menu'
 import {  NavButton } from 'react-svg-buttons'
 import '../img/settings-48.png'
+import buttonStyle from './ButtonStyle.css'
 
 
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-  this.state = {
-    windowHeight: undefined,
-    windowWidth: undefined,
-    navState: false,
-    navWidth: 55
-  }
+  this.state = JSON.parse(localStorage.getItem('size'|| ''))
   this.handleResize = this.handleResize.bind(this)
   this.onClick = this.onClick.bind(this)
+  this.getPath = this.getPath.bind(this);
+  this.onResize = this.onResize.bind(this)
  }
-  
-  handleResize() { this.setState({
+
+ getPath (currentPath) {
+   this.setState({
+     path: currentPath
+   })
+ }
+
+ onResize(){
+  this.setState({
     windowHeight: window.innerHeight,
     windowWidth: window.innerWidth
-  })}
+  })
+  localStorage.setItem('size', JSON.stringify(this.state))
+ }
+ 
+  
+  handleResize() { 
+    this.setState({
+    windowHeight: window.innerHeight,
+    windowWidth: window.innerWidth
+  })
+  localStorage.setItem('size', JSON.stringify(this.state))
+}
 
   componentDidMount() {
     this.handleResize();
     window.addEventListener('resize', this.handleResize)
+    ipcRenderer.on('currentPath', (event, result) => {
+      this.setState({
+        path: result
+      })
+    })
   }
 
   componentWillUnmount() {
@@ -44,20 +66,29 @@ export default class App extends React.Component {
     {
       this.setState({
         navState: false,
-        navWidth: 55
+        navWidth: 55,
+        size: "auto",
+        settings: "",
+        settingsIcon: <img src={'../img/settings-48.png'} style={{position: 'absolute', cursor: 'pointer', top: 2,left:2 }}></img>
       })
     }
     else{
       this.setState({
         navState: true,
-        navWidth: 250
+        navWidth: 250,
+        size: "large",
+        settings: "Settings",
+        settingsIcon: null
       })
     }
   }
 
+  
+
   render () {
     let style = {
-      background: '#373a47'
+      background: '#373a47',
+      height: "100%"
     }   
     
     let menuStyle={
@@ -74,23 +105,23 @@ export default class App extends React.Component {
       let lineStyle={
         pozition: 'relative',
         overflow: 'hidden',
-        marginTop: -63,
+        height: '100%',
+        marginTop: -61,
         color:"#ffb90f",
         fontSize: 80,
         fontWeight:'bold',
         textAlign:'center',
         textAlignVertical:'center'
         }
-        let settingsStyle={
-          pozition: 'relative',
+        const divStyle = {
+          position: 'relative',
           overflow: 'hidden',
-          color:"#ffb90f",
-          fontSize: 40,
-          background:"transparent",
-          type: 'link'
-          }
+          outline: 'none',
+          height: '100%',
+          width: '100%'
+        }
     return (
-      <div>  
+      <div style={style}>  
         <SplitPane
           split={'vertical'}
           minSize={this.state.navWidth}
@@ -98,7 +129,7 @@ export default class App extends React.Component {
           defaultSize={this.state.navWidth}
           style={style}
         >
-          <div>
+          <div >
           <NavButton direction="right"
             opened={this.state.navState} 
             color="#ffb90f" thickness={3} 
@@ -106,16 +137,30 @@ export default class App extends React.Component {
             onClick={this.onClick}/>
             <div style={menuStyle}>Menu</div>
             <div style={lineStyle}>_____________________</div>
-            <button style="link" style = {settingsStyle}><img src={'../img/settings-48.png'}></img>Settings</button>
+            <Solve path = {this.state.path} > </Solve>
+            <div style={divStyle}>
+            <AwesomeButton style = {buttonStyle}
+              size ={this.state.size}                
+            >
+            {this.state.settingsIcon}
+            {this.state.settings}
+            
+            
+            </AwesomeButton>
+            </div>
+           
           </div>
+          
           <SplitPane
             split='horizontal'
-            minSize={100}
             defaultSize={this.state.windowHeight-100}
+            minSize={100}
             maxSize={this.state.windowHeight-100}
+            onChange={this.onResize}
             >
 
-            <TabsPane/>
+            <TabsPane path={this.props.path}/>
+            
             <div style={{height: '100%'}}>
               <Cons />
             </div>
