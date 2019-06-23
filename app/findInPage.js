@@ -2,6 +2,11 @@
 import React from 'react'
 import {ipcRenderer} from 'electron'
 import {AwesomeButton} from 'react-awesome-button'
+import {
+  MorphIcon,
+  CloseButton,
+} from 'react-svg-buttons'
+import buttonStyle from './ButtonStyle.css'
 
 export default class FindInPage extends React.Component {
   constructor (props) {
@@ -22,12 +27,12 @@ export default class FindInPage extends React.Component {
     ipcRenderer.send('findString', ev.target.value)
   }
 
-  findNext (ev, arg) {
-    ipcRenderer.send('findNext', 'next')
+  findNext () {
+    ipcRenderer.send('findNext', "")
   }
 
-  stopFind (ev, arg) {
-    ipcRenderer.send('stopFind', ev.target.value)
+  stopFind () {
+    ipcRenderer.send('stopFind', "")
   }
   resultMatches (ev, arg) {
     this.setState({
@@ -45,18 +50,26 @@ export default class FindInPage extends React.Component {
       textAlign: 'center'
     }
     const inputStyle = {
-      width: '30%'
+      width: '60%',
+      fontSize: 20
+
     }
     const resultMatchesStyle = {
-      width: '20%'
+      width: '20%',
+      fontSize: 20
+    }
+    const buttonsStyle ={
+      margin: 10
     }
     return (
       <div style={divStyle}>
         <input style={inputStyle} value={this.state.content} onChange={this.handleChange.bind(this)} />
         <input style={resultMatchesStyle} value={this.state.resultMatches} onChange={this.resultMatches.bind(this)} disabled />
         <a>
-          <AwesomeButton onClick={this.findNext.bind(this)} simple > Next </AwesomeButton>
-          <AwesomeButton onClick={this.stopFind.bind(this)} simple > Close </AwesomeButton>
+          {/* <AwesomeButton style={buttonsStyle} size="small" action={(_element, next) => this.findNext(next)} simple > Next </AwesomeButton> */}
+         {/* <AwesomeButton size="auto" style={buttonsStyle} action={(_element, next) => this.findNext(next)} simple><MorphIcon type="arrowLeft"  size={48} thickness={2} color="#ff9e3e"/></AwesomeButton>  */}
+         <AwesomeButton size="auto" style={buttonsStyle} action={(_element, next) => this.findNext(next)} simple><MorphIcon type="arrowRight"  size={48} thickness={2} color="#ff9e3e" style={{top:5}}/></AwesomeButton>
+         <AwesomeButton size="auto" style={buttonsStyle} action={(_element, next) => this.stopFind(next)} simple><CloseButton  thickness={2} size={40} color="#ff9e3e"></CloseButton></AwesomeButton>
         </a>
       </div>
     )

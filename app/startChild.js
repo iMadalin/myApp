@@ -2,7 +2,8 @@
 import React from 'react'
 import {ipcRenderer} from 'electron'
 import {AwesomeButton} from 'react-awesome-button'
-import $ from 'jQuery'
+import Toggle from 'react-toggle'
+import "react-toggle/style.css"
 
 export default class Start extends React.Component {
   constructor (props) {
@@ -12,6 +13,7 @@ export default class Start extends React.Component {
       refUnitPath: JSON.parse(localStorage.getItem('childStateRefUnit'|| '')),
     }
     this.onClickOkButton = this.onClickOkButton.bind(this)
+    this.onClickCloseButton = this.onClickCloseButton.bind(this)
     this.onClickWorkDirBrowseButton = this.onClickWorkDirBrowseButton.bind(this)
     this.onClickRefUnitBrowseButton = this.onClickRefUnitBrowseButton.bind(this)
     this.updateWorkDirInputValue = this.updateWorkDirInputValue.bind(this)
@@ -32,7 +34,10 @@ export default class Start extends React.Component {
 
   onClickOkButton(){
     ipcRenderer.send('startPageOkButton', this.state.workingDir, this.state.refUnitPath)
-    console.log()
+  }
+
+  onClickCloseButton(){
+    ipcRenderer.send('startPageCloseButton', this.state.workingDir, this.state.refUnitPath)
   }
 
   onClickWorkDirBrowseButton(){
@@ -67,11 +72,6 @@ export default class Start extends React.Component {
       fontSize: 'large',
 
     }
-
-    $("#folderName").change(function() {
-      var sourceVal = document.getElementById("folderName").files[0].path;
-      $("#sourceDirPath").val(sourceVal);
-  });
   
     return (
       <div style = {divStyle}>
@@ -81,8 +81,17 @@ export default class Start extends React.Component {
           <label style = {{color:"#ffb90f"}}>Reference Unit Path: </label>
           <input id = "refUnitPath"  value = {this.state.refUnitPath} onChange={this.updateRefUnitInputValue} style={{width: "500px", height: "30px", fontSize: "12pt", marginRight: 5}}></input>
           <AwesomeButton size="small" action={(_element, next) => this.onClickRefUnitBrowseButton(next)} > Browse... </AwesomeButton>
+
           <AwesomeButton size="small" style = {{position:'absolute', right: 120, bottom: -80}}  action={(_element, next) => this.onClickOkButton(next)} > OK </AwesomeButton>
-          <AwesomeButton size="small" style = {{position:'absolute', right: 10, bottom: -80}}   > Close </AwesomeButton>
+          <AwesomeButton size="small" style = {{position:'absolute', right: 10, bottom: -80}}   action={(_element, next) => this.onClickCloseButton(next)} > Close </AwesomeButton>
+
+          <div style={{ position:'absolute', left: 100, bottom: -75}}>
+            <Toggle
+              defaultChecked={this.state.baconIsReady}
+              onChange={this.handleBaconChange} />
+            <span style = {{color:"#ffb90f"}}>Don't show this again</span>
+          </div >
+
       </div>
     )
   }

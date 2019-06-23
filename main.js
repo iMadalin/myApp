@@ -1,7 +1,7 @@
 'use strict'
 
 const electron = require('electron')
-const {app, BrowserWindow, Menu, shell, dialog, ipcMain} = electron
+const { app, BrowserWindow, Menu, shell, dialog, ipcMain } = electron
 const path = require('path')
 const url = require('url')
 const defaultMenu = require('electron-default-menu')
@@ -13,15 +13,16 @@ const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-d
 installExtension(REACT_DEVELOPER_TOOLS).then((name) => {
   console.log(`Added Extension:  ${name}`);
 })
-.catch((err) => {
-  console.log('An error occurred: ', err);
-});
+  .catch((err) => {
+    console.log('An error occurred: ', err);
+  });
 
 let mainWindow
 let findWindow
 let startWindow
+let settingWindow
 
-app.on('ready', function createWindow () {
+app.on('ready', function createWindow() {
   let size = electron.screen.getPrimaryDisplay().workAreaSize
   let lastWindowState = storage.get('lastWindowState')
   if (lastWindowState === null) {
@@ -70,17 +71,36 @@ app.on('ready', function createWindow () {
   }))
 
   findWindow = new BrowserWindow({
-    x: lastWindowState.x + 30,
-    y: lastWindowState.y + 70,
-    width: 350,
-    height: 60,
+    x: lastWindowState.x + 1500,
+    y: lastWindowState.y + 150,
+    width: 400,
+    height: 130,
     show: false,
     frame: false,
     parent: mainWindow,
-    resize: false
+    resize: false,
+    backgroundColor: '#373a47'
   })
   findWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/find.html'),
+    protocal: 'file:',
+    slashes: true
+  }))
+
+  settingWindow = new BrowserWindow({
+    resize: true,
+    center: true,
+    minWidth: 800,
+    minHeight: 600,
+    maxWidth: 800,
+    maxHeight: 600,
+    show: false,
+    frame: false,
+    parent: mainWindow,
+    backgroundColor: '#373a47',
+  })
+  settingWindow.loadURL(url.format({
+    pathname: path.join(__dirname, '/app/setting.html'),
     protocal: 'file:',
     slashes: true
   }))
@@ -108,7 +128,7 @@ ipcMain.on('asynchronous-message', (ev, contents) => {
   content = contents
 })
 
-function tabName (name) {
+function tabName(name) {
   let index
   for (let i = 0; i < name.length; i++) {
     if (name[i] === '\\') {
@@ -143,7 +163,7 @@ let showOpen = function () {
   })
 }
 
-function readFile (filepath) {
+function readFile(filepath) {
   fs.readFile(filepath, 'utf-8', (err, data) => {
     if (err) {
       console.log('An error ocurred reading the file :' + err.message)
@@ -158,22 +178,27 @@ ipcMain.on('tabPath', (event, path) => {
   mainWindow.webContents.send('currentPath', path)
 })
 
-ipcMain.on('startPageOkButton', (ev,workDir, refUnit)  => {
-  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir,refUnit)
+ipcMain.on('startPageOkButton', (ev, workDir, refUnit) => {
+  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
   startWindow.close()
 })
 
-ipcMain.on('brosweWorkDirButtonClicked', (ev)  => {
+ipcMain.on('startPageCloseButton', (ev, workDir, refUnit) => {
+  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
+  startWindow.close()
+})
+
+ipcMain.on('brosweWorkDirButtonClicked', (ev) => {
   const selectedPath = dialog.showOpenDialog({
-		properties: ['openDirectory']
+    properties: ['openDirectory']
 
   })
   startWindow.webContents.send('selectedWorkDirPath', selectedPath)
 })
 
-ipcMain.on('brosweRefUnitButtonClicked', (ev)  => {
+ipcMain.on('brosweRefUnitButtonClicked', (ev) => {
   const selectedPath = dialog.showOpenDialog({
-		properties: ['openDirectory']
+    properties: ['openDirectory']
 
   })
   startWindow.webContents.send('selectedRefUnitPath', selectedPath)
@@ -238,7 +263,7 @@ ipcMain.on('replaceString', (event, str) => {
 })
 
 ipcMain.on('findNext', (event, str) => {
-  mainWindow.webContents.findInPage(previousString, {findNext: true}, {wordStart: true})
+  mainWindow.webContents.findInPage(previousString, { findNext: true }, { wordStart: true })
   if (activeMatchOrdinal === resultMatches) {
     activeMatchOrdinal = 1
   } else {
@@ -248,6 +273,7 @@ ipcMain.on('findNext', (event, str) => {
 
 ipcMain.on('stopFind', (event, str) => {
   mainWindow.webContents.stopFindInPage('clearSelection')
+  event.preventDefault();
   findWindow.hide()
 })
 
@@ -258,6 +284,29 @@ let find = function () {
 let Insert = function (path) {
   mainWindow.webContents.send('insertElement', content, path)
 }
+
+ipcMain.on('openSetting', (event) => {
+  settingWindow.show()
+})
+
+ipcMain.on('settingPageOkButton', (event, workDir, refUnit) => {
+  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
+  event.preventDefault();
+  settingWindow.hide()
+})
+
+ipcMain.on('settingPageCloseButton', (event) => {
+  event.preventDefault();
+  settingWindow.hide()
+})
+
+ipcMain.on('NavIsColse', (event) => {
+  mainWindow.webContents.send('putIcon', '')
+})
+
+ipcMain.on('NavIsOpen', (event) => {
+  mainWindow.webContents.send('putString', '')
+})
 
 const menu = defaultMenu(app, shell)
 
@@ -297,79 +346,6 @@ menu.splice(0, 0, {
   ]
 })
 
-menu.splice(1, 0, {
-  label: 'Insert',
-  submenu: [
-    {
-      label: 'New Link',
-      click: function () { Insert('./lib/newLink.xml') }
-    },
-    {
-      label: 'New Joint',
-      submenu: [
-        {
-          label: 'Revolute',
-          click: function () { Insert('./lib/Revolute.xml') }
-        },
-        {
-          label: 'Slider',
-          click: function () { Insert('./lib/Slider.xml') }
-        },
-        {
-          label: 'Cylindrical',
-          click: function () { Insert('./lib/Cylindrical.xml') }
-        },
-        {
-          label: 'Screw',
-          click: function () { Insert('./lib/Screw.xml') }
-        },
-        {
-          label: 'Universal',
-          click: function () { Insert('./lib/Universal.xml') }
-        },
-        {
-          label: 'Spherical',
-          click: function () { Insert('./lib/Spherical.xml') }
-        },
-        {
-          label: 'Planar',
-          click: function () { Insert('./lib/Planar.xml') }
-        },
-        {
-          label: 'Fixed',
-          click: function () { Insert('./lib/Fixed.xml') }
-        },
-        {
-          label: 'Constant Velocity',
-          click: function () { Insert('./lib/ConstantVelocity.xml') }
-        },
-        {
-          label: 'Atpoint',
-          click: function () { Insert('./lib/Atpoint.xml') }
-        },
-        {
-          label: 'Inline',
-          click: function () { Insert('./lib/Inline.xml') }
-        },
-        {
-          label: 'Inplane',
-          click: function () { Insert('./lib/Inplane.xml') }
-        },
-        {
-          label: 'Orientation',
-          click: function () { Insert('./lib/Orientation.xml') }
-        },
-        {
-          label: 'Parallel',
-          click: function () { Insert('./lib/Parallel.xml') }
-        },
-        {
-          label: 'Perpendicular',
-          click: function () { Insert('./lib/Perpendicular.xml') }
-        }
-      ]
-    }
-  ]
-})
+
 
 Menu.setApplicationMenu(Menu.buildFromTemplate(menu))

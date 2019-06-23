@@ -2,9 +2,9 @@
 
 import React from 'react'
 import {AwesomeButton} from 'react-awesome-button'
-import PropTypes from 'prop-types'
 const { spawn } = require('child_process')
 import {ipcRenderer} from 'electron'
+import buttonStyle from './ButtonStyle.css'
 
 export default class Solve extends React.Component {
   constructor(props) {
@@ -12,12 +12,17 @@ export default class Solve extends React.Component {
     this.state = {
       path: "",
       workDir: "",
-      refUnit: ""
+      refUnit: "",
+      validate: "Validate",
+      solve: "Solve",
+      size: "large"
     }
  
-  this.handleClickSolve = this.handleClickSolve.bind(this)
+  this.handleClickValidate = this.handleClickValidate.bind(this)
   this.handleClickSolve = this.handleClickSolve.bind(this)
   this.getWorkPath = this.getWorkPath.bind(this)
+  this.navClose = this.navClose.bind(this)
+  this.navOpen = this.navOpen.bind(this)
 
  }
  handleClickValidate (e,path) {
@@ -60,8 +65,26 @@ export default class Solve extends React.Component {
     console.log(workDir,"   ", refUnit)
   }
 
+  navClose() {
+    this.setState({
+      size: "auto",
+      validate: <img src={'../img/checked-48.png'} style={{ position: 'absolute', cursor: 'pointer', top: 2, left: 2 }}></img>,
+      solve: <img src={'../img/calculator-48.png'} style={{ position: 'absolute', cursor: 'pointer', top: 2, left: 2 }}></img>,
+    })
+  }
+
+  navOpen() {
+    this.setState({
+      size: "large",
+      validate: "Validate",
+      solve: "Solve",
+    })
+  }
+
   componentDidMount() {
     ipcRenderer.on('WorkDirAndRefUnitPath', this.getWorkPath.bind(this)) 
+    ipcRenderer.on('putIcon', this.navClose.bind(this)) 
+    ipcRenderer.on('putString', this.navOpen.bind(this)) 
   }
 
   render () {
@@ -70,15 +93,15 @@ export default class Solve extends React.Component {
       overflow: 'hidden',
       outline: 'none',
       height: '100%',
-      width: '100%'
+      width: '100%',
     }
     return (
       <div style={divStyle}>
-        <AwesomeButton size="large" action={(_element, next) => this.handleClickValidate(next)} >
-         Validate 
+        <AwesomeButton size={this.state.size} style={{buttonStyle, margin:20}} action={(_element, next) => this.handleClickValidate(next)} >
+        {this.state.validate} 
         </AwesomeButton>
-        <AwesomeButton size="large" action={(_element, next) => this.handleClickSolve(next)} >
-         Solve 
+        <AwesomeButton size={this.state.size} style={{buttonStyle, margin:20}} action={(_element, next) => this.handleClickSolve(next)} >
+        {this.state.solve}  
         </AwesomeButton>
       </div>
     )
