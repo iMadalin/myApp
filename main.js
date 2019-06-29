@@ -188,20 +188,32 @@ ipcMain.on('startPageCloseButton', (ev, workDir, refUnit) => {
   startWindow.close()
 })
 
-ipcMain.on('brosweWorkDirButtonClicked', (ev) => {
+ipcMain.on('brosweWorkDirButtonClicked', (ev, isFromStartWindow) => {
   const selectedPath = dialog.showOpenDialog({
     properties: ['openDirectory']
 
   })
-  startWindow.webContents.send('selectedWorkDirPath', selectedPath)
+  console.log(isFromStartWindow)
+  if(isFromStartWindow){
+    startWindow.webContents.send('selectedWorkDirPath', selectedPath)
+  } else {
+    settingWindow.webContents.send('selectedWorkDirPathFromMain', selectedPath)
+  }
 })
 
-ipcMain.on('brosweRefUnitButtonClicked', (ev) => {
+ipcMain.on('brosweRefUnitButtonClicked', (ev, isFromStartWindow) => {
   const selectedPath = dialog.showOpenDialog({
     properties: ['openDirectory']
 
   })
-  startWindow.webContents.send('selectedRefUnitPath', selectedPath)
+  console.log(isFromStartWindow)
+  if(isFromStartWindow){
+    console.log("FromStart")
+    startWindow.webContents.send('selectedRefUnitPath', selectedPath)
+  } else {
+    console.log("FromMain")
+    settingWindow.webContents.send('selectedRefUnitPathFromMain', selectedPath)
+  }
 })
 
 
@@ -308,6 +320,12 @@ ipcMain.on('NavIsOpen', (event) => {
   mainWindow.webContents.send('putString', '')
 })
 
+ipcMain.on('insertNewElement', (event,path) => {
+  event.preventDefault();
+  mainWindow.webContents.send('insertElement', content, path)
+})
+
+
 const menu = defaultMenu(app, shell)
 
 menu.splice(0, 0, {
@@ -342,6 +360,81 @@ menu.splice(0, 0, {
       label: 'Quit',
       accelerator: 'Alt+F4',
       click: () => { app.quit() }
+    }
+  ]
+})
+
+menu.splice(1, 0, {
+  label: 'Insert',
+  submenu: [
+    {
+      label: 'New Link',
+      click: function () { Insert('./lib/newLink.xml') }
+    },
+    {
+      label: 'New Joint',
+      submenu: [
+        {
+          label: 'Revolute',
+          click: function () { Insert('./lib/Revolute.xml') }
+        },
+        {
+          label: 'Slider',
+          click: function () { Insert('./lib/Slider.xml') }
+        },
+        {
+          label: 'Cylindrical',
+          click: function () { Insert('./lib/Cylindrical.xml') }
+        },
+        {
+          label: 'Screw',
+          click: function () { Insert('./lib/Screw.xml') }
+        },
+        {
+          label: 'Universal',
+          click: function () { Insert('./lib/Universal.xml') }
+        },
+        {
+          label: 'Spherical',
+          click: function () { Insert('./lib/Spherical.xml') }
+        },
+        {
+          label: 'Planar',
+          click: function () { Insert('./lib/Planar.xml') }
+        },
+        {
+          label: 'Fixed',
+          click: function () { Insert('./lib/Fixed.xml') }
+        },
+        {
+          label: 'Constant Velocity',
+          click: function () { Insert('./lib/ConstantVelocity.xml') }
+        },
+        {
+          label: 'Atpoint',
+          click: function () { Insert('./lib/Atpoint.xml') }
+        },
+        {
+          label: 'Inline',
+          click: function () { Insert('./lib/Inline.xml') }
+        },
+        {
+          label: 'Inplane',
+          click: function () { Insert('./lib/Inplane.xml') }
+        },
+        {
+          label: 'Orientation',
+          click: function () { Insert('./lib/Orientation.xml') }
+        },
+        {
+          label: 'Parallel',
+          click: function () { Insert('./lib/Parallel.xml') }
+        },
+        {
+          label: 'Perpendicular',
+          click: function () { Insert('./lib/Perpendicular.xml') }
+        }
+      ]
     }
   ]
 })

@@ -77,9 +77,9 @@ export default class Settings extends React.Component {
     this.onClickOkButton = this.onClickOkButton.bind(this)
     this.onClickCloseButton = this.onClickCloseButton.bind(this)
     this.onClickWorkDirBrowseButton = this.onClickWorkDirBrowseButton.bind(this)
-    this.onClickRefUnitBrowseButton = this.onClickRefUnitBrowseButton.bind(this)
+    this.onClickRefUnitBrowseButtonFromMain = this.onClickRefUnitBrowseButtonFromMain.bind(this)
     this.updateWorkDirInputValue = this.updateWorkDirInputValue.bind(this)
-    this.updateRefUnitInputValue = this.updateRefUnitInputValue.bind(this)
+    this.updateRefUnitInputValueFromMain = this.updateRefUnitInputValueFromMain.bind(this)
   }
 
   handleClick = () => {
@@ -116,11 +116,11 @@ export default class Settings extends React.Component {
   }
 
   onClickWorkDirBrowseButton() {
-    ipcRenderer.send('brosweWorkDirButtonClicked')
+    ipcRenderer.send('brosweWorkDirButtonClicked', false)
   }
 
-  onClickRefUnitBrowseButton() {
-    ipcRenderer.send('brosweRefUnitButtonClicked')
+  onClickRefUnitBrowseButtonFromMain() {
+    ipcRenderer.send('brosweRefUnitButtonClicked', false)
   }
 
   onClickOkButton() {
@@ -137,25 +137,25 @@ export default class Settings extends React.Component {
     });
   }
 
-  updateRefUnitInputValue(evt) {
+  updateRefUnitInputValueFromMain(evt) {
     this.setState({
       refUnitPath: evt.target.value
     });
   }
 
-  componentDidMount() {
-    ipcRenderer.on('selectedWorkDirPath', (event, result) => {
+  componentDidMount(){
+    ipcRenderer.on('selectedWorkDirPath',(event, result) => {
       this.setState({
         workingDir: result
       })
-      document.getElementById("workDirPath").setAttribute('value', result);
+      document.getElementById("workDirPathFromMain").setAttribute('value', result);
       localStorage.setItem('childStateWorkDir', JSON.stringify(this.state.workingDir))
     })
-    ipcRenderer.on('selectedRefUnitPath', (event, result) => {
+    ipcRenderer.on('selectedRefUnitPathFrmoMain',(event, result) => {
       this.setState({
         refUnitPath: result
       })
-      document.getElementById("refUnitPath").setAttribute('value', result);
+      document.getElementById("refUnitPathFromMain").setAttribute('value', result);
       localStorage.setItem('childStateRefUnit', JSON.stringify(this.state.refUnitPath))
     })
   }
@@ -337,11 +337,11 @@ export default class Settings extends React.Component {
         </fieldset>
 
         <label style={{ color: "#ffb90f", margin: 15 }}>Working Directory: </label>
-        <input id="workDirPath" value={this.state.workingDir} onChange={this.updateWorkDirInputValue} type="text" style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5, marginLeft: 10 }}></input>
+        <input id="workDirPathFromMain" value={this.state.workingDir} onChange={this.updateWorkDirInputValue} type="text" style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5, marginLeft: 10 }}></input>
         <AwesomeButton size="small" action={(_element, next) => this.onClickWorkDirBrowseButton(next)} > Browse... </AwesomeButton>
         <label style={{ color: "#ffb90f", margin: 15  }}>Reference Unit Path: </label>
-        <input id="refUnitPath" value={this.state.refUnitPath} onChange={this.updateRefUnitInputValue} style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5 }}></input>
-        <AwesomeButton size="small" action={(_element, next) => this.onClickRefUnitBrowseButton(next)} > Browse... </AwesomeButton>
+        <input id="refUnitPathFromMain" value={this.state.refUnitPath} onChange={this.updateRefUnitInputValueFromMain} style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5 }}></input>
+        <AwesomeButton size="small" action={(_element, next) => this.onClickRefUnitBrowseButtonFromMain(next)} > Browse... </AwesomeButton>
 
         <AwesomeButton size="small" style={{ position: 'auto', left: 560, marginTop:40}} action={(_element, next) => this.onClickOkButton(next)} > OK </AwesomeButton>
         <AwesomeButton size="small" style={{ position: 'auto', left: 580, marginTop:40 }} action={(_element, next) => this.onClickCloseButton(next)} > Close </AwesomeButton>

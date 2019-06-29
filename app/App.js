@@ -163,8 +163,8 @@ export default class App extends React.Component {
 
           <SplitPane
             split='horizontal'
-            defaultSize={this.state.windowHeight - 100}
-            minSize={100}
+            defaultSize={this.state.windowHeight - 200}
+            minSize={200}
             maxSize={this.state.windowHeight - 100}
             onChange={this.onResize}
           >

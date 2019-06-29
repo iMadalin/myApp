@@ -154,6 +154,7 @@ export default class TabsPane extends React.Component {
   };
 
   insertElement(ev, arg, path) {
+    console.log("am primit")
     let tab = this.state.tabs
     for (let i = 0; i < tab.length; i++) {
       if (tab[i].tabKey === this.state.activeKey) {
@@ -313,11 +314,12 @@ export default class TabsPane extends React.Component {
 
   render() {
     let style = {
-      height: "100%",
-      overflow: 'none',
+      height: "auto",
+      overflow:'none'
     }
     let textAreaStyle = {
-      height: '90%',
+      height: '92%',
+      overflow:'none'
     }
     return (
       <Tabs style={style}

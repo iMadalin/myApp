@@ -41,11 +41,11 @@ export default class Start extends React.Component {
   }
 
   onClickWorkDirBrowseButton(){
-    ipcRenderer.send('brosweWorkDirButtonClicked')
+    ipcRenderer.send('brosweWorkDirButtonClicked', true)
   }
 
   onClickRefUnitBrowseButton(){
-    ipcRenderer.send('brosweRefUnitButtonClicked')
+    ipcRenderer.send('brosweRefUnitButtonClicked', true)
   }
 
   componentDidMount(){
