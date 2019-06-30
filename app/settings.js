@@ -8,57 +8,61 @@ import Select from 'react-select'
 import Toggle from 'react-toggle'
 import "react-toggle/style.css"
 import { AwesomeButton } from 'react-awesome-button'
+import localStorage from 'localStorage'
 
 const modeOptions =
-[
-  { label: 'xml', value: 'xml' },
-  { label: 'javascript', value: 'javascript' },
-  { label: 'java', value: 'java' },
-  { label: 'python', value: 'python' },
-  { label: 'ruby', value: 'ruby' },
-  { label: 'markdown', value: 'markdown' },
-  { label: 'mysql', value: 'mysql' },
-  { label: 'json', value: 'json' },
-  { label: 'html', value: 'html' },
-  { label: 'handlebars', value: 'handlebars' },
-  { label: 'golang', value: 'golang' },
-  { label: 'csharp', value: 'csharp' },
-  { label: 'coffee', value: 'coffee' },
-  { label: 'css', value: 'css' },
-]
+  [
+    { label: 'xml', value: 'xml' },
+    { label: 'javascript', value: 'javascript' },
+    { label: 'C/C++', value: 'c_cpp' },
+    { label: 'python', value: 'python' },
+    { label: 'haskell', value: 'haskell' },
+    { label: 'java', value: 'java' },
+    { label: 'ruby', value: 'ruby' },
+    { label: 'markdown', value: 'markdown' },
+    { label: 'mysql', value: 'mysql' },
+    { label: 'json', value: 'json' },
+    { label: 'html', value: 'html' },
+    { label: 'handlebars', value: 'handlebars' },
+    { label: 'golang', value: 'golang' },
+    { label: 'csharp', value: 'csharp' },
+    { label: 'coffee', value: 'coffee' },
+    { label: 'css', value: 'css' },
+  ]
 
 const themeOptions =
-[
-  { label: 'monokai', value: 'monokai' },
-  { label: 'github', value: 'github' },
-  { label: 'tomorrow', value: 'tomorrow' },
-  { label: 'kuroir', value: 'kuroir' },
-  { label: 'twilight', value: 'twilight' },
-  { label: 'xcode', value: 'xcode' },
-  { label: 'textmate', value: 'textmate' },
-  { label: 'solarized dark', value: 'solarized dark' },
-  { label: 'solarized light', value: 'solarized light' },
-  { label: 'terminal', value: 'terminal' },
-]
+  [
+    { label: 'monokai', value: 'monokai' },
+    { label: 'dracula', value: 'dracula' },
+    { label: 'github', value: 'github' },
+    { label: 'tomorrow', value: 'tomorrow' },
+    { label: 'kuroir', value: 'kuroir' },
+    { label: 'twilight', value: 'twilight' },
+    { label: 'xcode', value: 'xcode' },
+    { label: 'textmate', value: 'textmate' },
+    { label: 'solarized dark', value: 'solarized_dark' },
+    { label: 'solarized light', value: 'solarized_light' },
+    { label: 'terminal', value: 'terminal' },
+  ]
 
 const fontSizeOptions =
-[
-  { label: '8', value: '8' },
-  { label: '9', value: '9' },
-  { label: '10', value: '10' },
-  { label: '11', value: '11' },
-  { label: '12', value: '12' },
-  { label: '14', value: '14' },
-  { label: '16', value: '15' },
-  { label: '18', value: '18' },
-  { label: '20', value: '20' },
-  { label: '22', value: '22' },
-  { label: '24', value: '24' },
-  { label: '28', value: '28' },
-  { label: '36', value: '28' },
-  { label: '48', value: '36' },
-  { label: '72', value: '72' },
-]
+  [
+    { label: '8', value: '8pt' },
+    { label: '9', value: '9pt' },
+    { label: '10', value: '10pt' },
+    { label: '11', value: '11pt' },
+    { label: '12', value: '12pt' },
+    { label: '14', value: '14pt' },
+    { label: '16', value: '15pt' },
+    { label: '18', value: '18pt' },
+    { label: '20', value: '20pt' },
+    { label: '22', value: '22pt' },
+    { label: '24', value: '24pt' },
+    { label: '28', value: '28pt' },
+    { label: '36', value: '28pt' },
+    { label: '48', value: '36pt' },
+    { label: '72', value: '72pt' },
+  ]
 
 export default class Settings extends React.Component {
   constructor(props) {
@@ -66,13 +70,22 @@ export default class Settings extends React.Component {
     this.state = {
       displayColorPicker: false,
       displayTextColorColorPicker: false,
-      background: '#373a47',
-      textColor: '#CE9D30',
-      theme: JSON.parse(localStorage.getItem('theme' || { label: 'monokai', value: 'monokai' })),
-      mode: { label: 'xml', value: 'xml' },
-      workingDir: JSON.parse(localStorage.getItem('childStateWorkDir' || '')),
-      refUnitPath: JSON.parse(localStorage.getItem('childStateRefUnit' || '')),
-      fontSize: { label: '14', value: '14' },
+      background: JSON.parse(localStorage.getItem('background')),
+      textColor: JSON.parse(localStorage.getItem('textColor')),
+      theme: JSON.parse(localStorage.getItem('theme')),
+      mode: JSON.parse(localStorage.getItem('mode')),
+      workingDir: JSON.parse(localStorage.getItem('childStateWorkDir')),
+      refUnitPath: JSON.parse(localStorage.getItem('childStateRefUnit')),
+      fontSize: JSON.parse(localStorage.getItem('fondSize')),
+      basicAutocomplete: JSON.parse(localStorage.getItem('basicAutocomplete')),
+      liveAutocomplete: JSON.parse(localStorage.getItem('liveAutocomplete', true)),
+      gutter: JSON.parse(localStorage.getItem('gutter', true)),
+      printMargin: JSON.parse(localStorage.getItem('printMargin', true)),
+      activeLine: JSON.parse(localStorage.getItem('activeLine', true)),
+      snippets: JSON.parse(localStorage.getItem('snippets', true)),
+      lineNumber: JSON.parse(localStorage.getItem('lineNumber', true)),
+      softTabs: JSON.parse(localStorage.getItem('softTabs', true)),
+
     }
     this.onClickOkButton = this.onClickOkButton.bind(this)
     this.onClickCloseButton = this.onClickCloseButton.bind(this)
@@ -80,6 +93,14 @@ export default class Settings extends React.Component {
     this.onClickRefUnitBrowseButtonFromMain = this.onClickRefUnitBrowseButtonFromMain.bind(this)
     this.updateWorkDirInputValue = this.updateWorkDirInputValue.bind(this)
     this.updateRefUnitInputValueFromMain = this.updateRefUnitInputValueFromMain.bind(this)
+    this.handleBasicAutocomplete = this.handleBasicAutocomplete.bind(this)
+    this.handleLiveAutocomplete = this.handleLiveAutocomplete.bind(this)
+    this.handleGutter = this.handleGutter.bind(this)
+    this.handlePrintMargin = this.handlePrintMargin.bind(this)
+    this.handleActiveLine = this.handleActiveLine.bind(this)
+    this.handleSnippets = this.handleSnippets.bind(this)
+    this.handleLineNumber = this.handleLineNumber.bind(this)
+    this.handleSoftTabs = this.handleSoftTabs.bind(this)
   }
 
   handleClick = () => {
@@ -92,6 +113,8 @@ export default class Settings extends React.Component {
 
   handleChange = (color) => {
     this.setState({ background: color.hex })
+    localStorage.setItem('background', JSON.stringify(color.hex))
+
   };
 
   handleTextColorClick = () => {
@@ -104,15 +127,63 @@ export default class Settings extends React.Component {
 
   handleTextColorChange = (color) => {
     this.setState({ textColor: color.hex })
+    localStorage.setItem('textColor', JSON.stringify(color.hex))
   };
 
   handleThemeChange = (value) => {
     this.setState({ theme: value });
-    localStorage.setItem('theme', JSON.stringify(this.state.theme))
+    console.log(value)
+    localStorage.setItem('theme', JSON.stringify(value))
+  }
+
+  handleFondSizeChange = (value) => {
+    this.setState({ fontSize: value });
+    localStorage.setItem('fondSize', JSON.stringify(value))
   }
 
   handleModeChange = (value) => {
     this.setState({ mode: value });
+    localStorage.setItem('mode', JSON.stringify(value))
+  }
+
+  handleBasicAutocomplete(event) {
+    this.setState({ basicAutocomplete: event.target.checked });
+    localStorage.setItem('basicAutocomplete', JSON.stringify(event.target.checked))
+  }
+
+  handleLiveAutocomplete(event) {
+    this.setState({ liveAutocomplete: event.target.checked });
+    localStorage.setItem('liveAutocomplete', JSON.stringify(event.target.checked))
+  }
+
+  handleGutter(event) {
+    this.setState({ gutter: event.target.checked });
+    localStorage.setItem('gutter', JSON.stringify(event.target.checked))
+  }
+
+  handlePrintMargin(event) {
+    this.setState({ printMargin: event.target.checked });
+    localStorage.setItem('printMargin', JSON.stringify(event.target.checked))
+  }
+
+  handleActiveLine(event) {
+    this.setState({ activeLine: event.target.checked });
+    localStorage.setItem('activeLine', JSON.stringify(event.target.checked))
+  }
+
+  handleSnippets(event) {
+    this.setState({ snippets: event.target.checked });
+    localStorage.setItem('snippets', JSON.stringify(event.target.checked))
+  }
+
+  handleLineNumber(event) {
+    this.setState({ lineNumber: event.target.checked });
+    localStorage.setItem('lineNumber', JSON.stringify(event.target.checked))
+  }
+
+  handleSoftTabs(event) {
+    this.setState({ softTabs: event.target.checked });
+    localStorage.setItem('softTabs', JSON.stringify(event.target.checked))
   }
 
   onClickWorkDirBrowseButton() {
@@ -124,7 +195,12 @@ export default class Settings extends React.Component {
   }
 
   onClickOkButton() {
-    ipcRenderer.send('settingPageOkButton', this.state.workingDir, this.state.refUnitPath)
+    ipcRenderer.send('settingPageOkButton',
+      this.state.background, this.state.textColor, this.state.fontSize,
+      this.state.mode, this.state.theme, this.state.basicAutocomplete,
+      this.state.liveAutocomplete, this.state.gutter, this.state.printMargin,
+      this.state.activeLine, this.state.snippets, this.state.lineNumber,
+      this.state.softTabs, this.state.workingDir, this.state.refUnitPath)
   }
 
   onClickCloseButton() {
@@ -143,20 +219,21 @@ export default class Settings extends React.Component {
     });
   }
 
-  componentDidMount(){
-    ipcRenderer.on('selectedWorkDirPath',(event, result) => {
+  componentDidMount() {
+    ipcRenderer.on('selectedWorkDirPathFromMain', (event, result) => {
       this.setState({
         workingDir: result
       })
       document.getElementById("workDirPathFromMain").setAttribute('value', result);
-      localStorage.setItem('childStateWorkDir', JSON.stringify(this.state.workingDir))
+      localStorage.setItem('childStateWorkDir', JSON.stringify(result))
     })
-    ipcRenderer.on('selectedRefUnitPathFrmoMain',(event, result) => {
+    ipcRenderer.on('selectedRefUnitPathFromMain', (event, result) => {
       this.setState({
         refUnitPath: result
       })
+      console.log(result)
       document.getElementById("refUnitPathFromMain").setAttribute('value', result);
-      localStorage.setItem('childStateRefUnit', JSON.stringify(this.state.refUnitPath))
+      localStorage.setItem('childStateRefUnit', JSON.stringify(result))
     })
   }
 
@@ -201,7 +278,7 @@ export default class Settings extends React.Component {
     let labelStyle = {
       color: this.state.textColor,
       padding: 10,
-      fontSize: this.state.fontSize
+      fontSize: "12pt"
     }
 
     const { selectedThemeOption } = this.state.theme;
@@ -224,7 +301,7 @@ export default class Settings extends React.Component {
 
         <div style={{ padding: 15 }}>
           <label style={labelStyle}>Text Color</label>
-          <div style={styles.swatch } onClick={this.handleTextColorClick}>
+          <div style={styles.swatch} onClick={this.handleTextColorClick}>
             <div style={styles.color1} />
           </div>
           {this.state.displayTextColorColorPicker ? <div style={styles.popover}>
@@ -237,24 +314,24 @@ export default class Settings extends React.Component {
 
           <div style={{ float: 'left' }}>
             <span style={{
-             color: this.state.textColor, padding: 11,
-              fontSize: 18
+              color: this.state.textColor, padding: 11,
+              fontSize: "12pt"
             }}>Font Size</span>
           </div>
           <div style={{ width: 170 }}>
             <Select
               value={selectedFontSizeOption}
-              onChange={this.handleThemeChange}
+              onChange={this.handleFondSizeChange}
               options={fontSizeOptions}
               color={this.state.textColor}
-              defaultValue= {this.state.fontSize}
+              defaultValue={this.state.fontSize}
             />
 
           </div>
           <div style={{ float: 'left' }}>
             <span style={{
               color: this.state.textColor, padding: 10,
-              fontSize: 18
+              fontSize: "12pt"
             }}>Language</span>
           </div>
           <div style={{ width: 300 }}>
@@ -262,14 +339,14 @@ export default class Settings extends React.Component {
               value={selectedModeOption}
               onChange={this.handleModeChange}
               options={modeOptions}
-              defaultValue= {this.state.mode}
+              defaultValue={this.state.mode}
             />
           </div>
 
           <div style={{ float: 'left' }}>
             <span style={{
-              color: this.state.textColor, padding: 20, 
-              fontSize: 18
+              color: this.state.textColor, padding: 20,
+              fontSize: "12pt"
             }}>Theme</span>
           </div>
           <div style={{ width: 300 }}>
@@ -278,73 +355,73 @@ export default class Settings extends React.Component {
               onChange={this.handleThemeChange}
               options={themeOptions}
               color={this.state.textColor}
-              defaultValue= {this.state.theme}
+              defaultValue={this.state.theme}
             />
           </div>
 
           <label>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.basicAutocomplete}
+              onChange={this.handleBasicAutocomplete} />
             <span style={labelStyle}>Enable Basic Autocomplete</span>
           </label>
           <label style={{ marginLeft: 180 }}>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.liveAutocomplete}
+              onChange={this.handleLiveAutocomplete} />
             <span style={labelStyle}>Enable Live Autocomplete</span>
           </label>
           <br></br>
           <label>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.gutter}
+              onChange={this.handleGutter} />
             <span style={labelStyle}>Show Gutter</span>
           </label>
           <label style={{ marginLeft: 278 }}>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.printMargin}
+              onChange={this.handlePrintMargin} />
             <span style={labelStyle}>Show Print Margin</span>
           </label>
           <br></br>
           <label>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.activeLine}
+              onChange={this.handleActiveLine} />
             <span style={labelStyle}>Highlight Active Line</span>
           </label>
           <label style={{ marginLeft: 219 }}>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.snippets}
+              onChange={this.handleSnippets} />
             <span style={labelStyle}>Enable Snippets</span>
           </label>
           <br></br>
           <label>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.lineNumber}
+              onChange={this.handleLineNumber} />
             <span style={labelStyle}>Show Line Number</span>
           </label >
 
-          <label style={{ marginLeft: 234}}>
+          <label style={{ marginLeft: 234 }}>
             <Toggle
-              defaultChecked={this.state.baconIsReady}
-              onChange={this.handleBaconChange} />
+              defaultChecked={this.state.softTabs}
+              onChange={this.handleSoftTabs} />
             <span style={labelStyle}>Use soft tabs</span>
           </label >
         </fieldset>
 
-        <label style={{ color: "#ffb90f", margin: 15 }}>Working Directory: </label>
+        <label style={{ color: this.state.textColor, margin: 15 }}>Working Directory: </label>
         <input id="workDirPathFromMain" value={this.state.workingDir} onChange={this.updateWorkDirInputValue} type="text" style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5, marginLeft: 10 }}></input>
         <AwesomeButton size="small" action={(_element, next) => this.onClickWorkDirBrowseButton(next)} > Browse... </AwesomeButton>
-        <label style={{ color: "#ffb90f", margin: 15  }}>Reference Unit Path: </label>
+        <label style={{ color: this.state.textColor, margin: 15 }}>Reference Unit Path: </label>
         <input id="refUnitPathFromMain" value={this.state.refUnitPath} onChange={this.updateRefUnitInputValueFromMain} style={{ width: "500px", height: "30px", fontSize: "12pt", marginRight: 5 }}></input>
         <AwesomeButton size="small" action={(_element, next) => this.onClickRefUnitBrowseButtonFromMain(next)} > Browse... </AwesomeButton>
 
-        <AwesomeButton size="small" style={{ position: 'auto', left: 560, marginTop:40}} action={(_element, next) => this.onClickOkButton(next)} > OK </AwesomeButton>
-        <AwesomeButton size="small" style={{ position: 'auto', left: 580, marginTop:40 }} action={(_element, next) => this.onClickCloseButton(next)} > Close </AwesomeButton>
+        <AwesomeButton size="small" style={{ position: 'auto', left: 560, bottom: 20, marginTop: 40 }} action={(_element, next) => this.onClickOkButton(next)} > OK </AwesomeButton>
+        <AwesomeButton size="small" style={{ position: 'auto', left: 580, bottom: 20, marginTop: 40 }} action={(_element, next) => this.onClickCloseButton(next)} > Close </AwesomeButton>
       </div>
     )
   }

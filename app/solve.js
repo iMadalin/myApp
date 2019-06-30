@@ -28,24 +28,49 @@ export default class Solve extends React.Component {
  handleClickValidate (e,path) {
   document.getElementById('output').value = ''
   let solve = (this.state.refUnit + '\\wntx64\\kits\\mech\\mdf_toolkit\\Mdf.bat -validate ' + this.props.path).toString()
-  console.log(solve)
-
-  document.getElementById('output').value += solve + '\n'
+  if(this.props.path == '')
+  {
+    alert("Save the file before validation")
+    return;
+  }
+  let errors = false
+ // document.getElementById('output').value += solve + '\n'
   const bat = spawn('cmd.exe', ['/c', solve], {cwd: (this.state.workDir).toString()})
   bat.stdout.on('data', (data) => {
     document.getElementById('output').value += data.toString()
+    var invalidRefUnitString = " The system cannot find the path specified. "
+    var ec = data.toLocaleString()  
+
+    if(ec.length == invalidRefUnitString.length) {
+      alert("invalid reference unit")
+    }
+    errors = true
   })
 
   bat.stderr.on('data', (data) => {
     document.getElementById('output').value += data.toString()
+    var invalidRefUnitString = " The system cannot find the path specified. "
+    var ec = data.toLocaleString()  
+
+    if(ec.length == invalidRefUnitString.length) {
+      alert("Invalid reference unit path: Please update the reference unit from Settings->ReferenceUnitPath")
+    }
+    errors = true
   })
+
+  setTimeout(function(){  if(!errors) {
+    document.getElementById('output').value += "The mechanism is VALID"
+  } }, 3000);
 }
  
   handleClickSolve (e,path) {
     document.getElementById('output').value = ''
     let solve = (this.state.refUnit + '\\wntx64\\kits\\mech\\mdf_toolkit\\Mdf.bat -solve ' + this.props.path).toString()
-    console.log(solve)
-
+    if(this.props.path == '')
+    {
+      alert("Save the file before solve")
+      return;
+    }
     document.getElementById('output').value += solve + '\n'
     const bat = spawn('cmd.exe', ['/c', solve], {cwd: (this.state.workDir).toString()})
     bat.stdout.on('data', (data) => {
@@ -62,7 +87,6 @@ export default class Solve extends React.Component {
       workDir: workDir,
       refUnit: refUnit
     })
-    console.log(workDir,"   ", refUnit)
   }
 
   navClose() {

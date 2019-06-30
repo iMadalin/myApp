@@ -21,6 +21,7 @@ let mainWindow
 let findWindow
 let startWindow
 let settingWindow
+let showWindow = storage.get('showStartWindow')
 
 app.on('ready', function createWindow() {
   let size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -41,7 +42,6 @@ app.on('ready', function createWindow() {
     minWidth: 800,
     minHeight: 400,
     darkTheme: true,
-    backgroundColor: '#373a47'
   })
 
   mainWindow.loadURL(url.format({
@@ -54,7 +54,7 @@ app.on('ready', function createWindow() {
     parent: mainWindow,
     width: 800,
     height: 200,
-    show: true,
+    show: showWindow,
     frame: false,
     resize: true,
     center: true,
@@ -79,7 +79,7 @@ app.on('ready', function createWindow() {
     frame: false,
     parent: mainWindow,
     resize: false,
-    backgroundColor: '#373a47'
+    transparent: true,
   })
   findWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/find.html'),
@@ -88,22 +88,24 @@ app.on('ready', function createWindow() {
   }))
 
   settingWindow = new BrowserWindow({
-    resize: true,
     center: true,
+    resize: false,
+    transparent: true,
     minWidth: 800,
-    minHeight: 600,
+    minHeight: 700,
     maxWidth: 800,
-    maxHeight: 600,
+    maxHeight: 700,
     show: false,
     frame: false,
     parent: mainWindow,
-    backgroundColor: '#373a47',
+
   })
   settingWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/app/setting.html'),
     protocal: 'file:',
     slashes: true
   }))
+  settingWindow.setResizable(false)
 
   if (lastWindowState.maximized) {
     mainWindow.maximize()
@@ -178,14 +180,14 @@ ipcMain.on('tabPath', (event, path) => {
   mainWindow.webContents.send('currentPath', path)
 })
 
-ipcMain.on('startPageOkButton', (ev, workDir, refUnit) => {
+ipcMain.on('startPageOkButton', (ev, workDir, refUnit, showWindow) => {
   mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
-  startWindow.close()
+  storage.set('showStartWindow', !(showWindow) )
+  startWindow.hide()
 })
 
-ipcMain.on('startPageCloseButton', (ev, workDir, refUnit) => {
-  mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
-  startWindow.close()
+ipcMain.on('startPageCloseButton', (ev) => {
+  startWindow.hide()
 })
 
 ipcMain.on('brosweWorkDirButtonClicked', (ev, isFromStartWindow) => {
@@ -193,8 +195,7 @@ ipcMain.on('brosweWorkDirButtonClicked', (ev, isFromStartWindow) => {
     properties: ['openDirectory']
 
   })
-  console.log(isFromStartWindow)
-  if(isFromStartWindow){
+  if (isFromStartWindow) {
     startWindow.webContents.send('selectedWorkDirPath', selectedPath)
   } else {
     settingWindow.webContents.send('selectedWorkDirPathFromMain', selectedPath)
@@ -206,12 +207,9 @@ ipcMain.on('brosweRefUnitButtonClicked', (ev, isFromStartWindow) => {
     properties: ['openDirectory']
 
   })
-  console.log(isFromStartWindow)
-  if(isFromStartWindow){
-    console.log("FromStart")
+  if (isFromStartWindow) {
     startWindow.webContents.send('selectedRefUnitPath', selectedPath)
   } else {
-    console.log("FromMain")
     settingWindow.webContents.send('selectedRefUnitPathFromMain', selectedPath)
   }
 })
@@ -293,6 +291,10 @@ let find = function () {
   findWindow.show()
 }
 
+let showStartWindow = function() {
+  storage.set('showStartWindow', true )
+}
+
 let Insert = function (path) {
   mainWindow.webContents.send('insertElement', content, path)
 }
@@ -301,7 +303,13 @@ ipcMain.on('openSetting', (event) => {
   settingWindow.show()
 })
 
-ipcMain.on('settingPageOkButton', (event, workDir, refUnit) => {
+ipcMain.on('settingPageOkButton', (event, background, textColor, fontSize,
+  mode, theme, basicAutocomplete, liveAutocomplete, gutter, printMargin,
+  activeLine, snippets, lineNumber, softTabs, workDir, refUnit) => {
+  mainWindow.setBackgroundColor(background)
+  mainWindow.webContents.send('appSettings', background, textColor, fontSize,
+   mode, theme, basicAutocomplete, liveAutocomplete, gutter, printMargin,
+   activeLine, snippets, lineNumber, softTabs)
   mainWindow.webContents.send('WorkDirAndRefUnitPath', workDir, refUnit)
   event.preventDefault();
   settingWindow.hide()
@@ -320,7 +328,7 @@ ipcMain.on('NavIsOpen', (event) => {
   mainWindow.webContents.send('putString', '')
 })
 
-ipcMain.on('insertNewElement', (event,path) => {
+ipcMain.on('insertNewElement', (event, path) => {
   event.preventDefault();
   mainWindow.webContents.send('insertElement', content, path)
 })
@@ -357,88 +365,17 @@ menu.splice(0, 0, {
       click: function () { find() }
     },
     {
+      label: 'Show start window after restart',
+      type: 'checkbox',
+      checked: false,
+      click: function () { showStartWindow() }
+    },
+    {
       label: 'Quit',
       accelerator: 'Alt+F4',
       click: () => { app.quit() }
     }
   ]
 })
-
-menu.splice(1, 0, {
-  label: 'Insert',
-  submenu: [
-    {
-      label: 'New Link',
-      click: function () { Insert('./lib/newLink.xml') }
-    },
-    {
-      label: 'New Joint',
-      submenu: [
-        {
-          label: 'Revolute',
-          click: function () { Insert('./lib/Revolute.xml') }
-        },
-        {
-          label: 'Slider',
-          click: function () { Insert('./lib/Slider.xml') }
-        },
-        {
-          label: 'Cylindrical',
-          click: function () { Insert('./lib/Cylindrical.xml') }
-        },
-        {
-          label: 'Screw',
-          click: function () { Insert('./lib/Screw.xml') }
-        },
-        {
-          label: 'Universal',
-          click: function () { Insert('./lib/Universal.xml') }
-        },
-        {
-          label: 'Spherical',
-          click: function () { Insert('./lib/Spherical.xml') }
-        },
-        {
-          label: 'Planar',
-          click: function () { Insert('./lib/Planar.xml') }
-        },
-        {
-          label: 'Fixed',
-          click: function () { Insert('./lib/Fixed.xml') }
-        },
-        {
-          label: 'Constant Velocity',
-          click: function () { Insert('./lib/ConstantVelocity.xml') }
-        },
-        {
-          label: 'Atpoint',
-          click: function () { Insert('./lib/Atpoint.xml') }
-        },
-        {
-          label: 'Inline',
-          click: function () { Insert('./lib/Inline.xml') }
-        },
-        {
-          label: 'Inplane',
-          click: function () { Insert('./lib/Inplane.xml') }
-        },
-        {
-          label: 'Orientation',
-          click: function () { Insert('./lib/Orientation.xml') }
-        },
-        {
-          label: 'Parallel',
-          click: function () { Insert('./lib/Parallel.xml') }
-        },
-        {
-          label: 'Perpendicular',
-          click: function () { Insert('./lib/Perpendicular.xml') }
-        }
-      ]
-    }
-  ]
-})
-
-
 
 Menu.setApplicationMenu(Menu.buildFromTemplate(menu))

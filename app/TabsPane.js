@@ -4,21 +4,61 @@ import TabContent from 'rc-tabs/lib/TabContent'
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
+import brace from 'brace';
 import localStorage from 'localStorage'
 import { AwesomeButton } from 'react-awesome-button'
 import 'react-awesome-button/src/styles/themes/theme-c137'
 import AceEditor from 'react-ace';
 
 import 'brace/mode/xml';
+import 'brace/mode/javascript';
+import 'brace/mode/java';
+import 'brace/mode/python';
+import 'brace/mode/ruby';
+import 'brace/mode/markdown';
+import 'brace/mode/mysql';
+import 'brace/mode/json';
+import 'brace/mode/html';
+import 'brace/mode/handlebars';
+import 'brace/mode/golang';
+import 'brace/mode/csharp';
+import 'brace/mode/coffee';
+import 'brace/mode/css';
+import 'brace/mode/c_cpp';
+import 'brace/mode/haskell';
 import 'brace/theme/monokai';
+import 'brace/theme/github';
+import 'brace/theme/tomorrow';
+import 'brace/theme/kuroir';
+import 'brace/theme/twilight';
+import 'brace/theme/xcode';
+import 'brace/theme/textmate';
+import 'brace/theme/terminal';
+import 'brace/theme/solarized_dark';
+import 'brace/theme/solarized_light';
+import 'brace/theme/dracula';
 import 'brace/ext/language_tools';
 import 'brace/snippets/xml';
+import 'brace/snippets/javascript';
+import 'brace/snippets/java';
+import 'brace/snippets/python';
+import 'brace/snippets/ruby';
+import 'brace/snippets/markdown';
+import 'brace/snippets/mysql';
+import 'brace/snippets/json';
+import 'brace/snippets/html';
+import 'brace/snippets/handlebars';
+import 'brace/snippets/golang';
+import 'brace/snippets/csharp';
+import 'brace/snippets/coffee';
+import 'brace/snippets/css';
+import 'brace/snippets/c_cpp';
+import 'brace/snippets/haskell';
 import 'brace/index';
 import {
   CloseButton,
   PlusButton,
 } from 'react-svg-buttons'
-import buttonStyle from './ButtonStyle.css'
 import ReactTooltip from 'react-tooltip'
 
 function TabData(title, path, key = undefined, content = '') {
@@ -33,15 +73,28 @@ export default class TabsPane extends React.Component {
   constructor(props) {
     super(props)
     let tab = new TabData()
-    this.state = JSON.parse(localStorage.getItem('tab') || tab)
-  //  this.state = JSON.parse(localStorage.getItem('tab') || '{}')
-    //{
-    //   tabs: 
-    // JSON.parse(localStorage.getItem('tab'|| '{}'))
-    //   activeKey:undefined,
-    //   cursor: undefined
-    // }
-    ipcRenderer.send('tabPath', this.state.path)
+    this.state = {
+      tabs: JSON.parse(localStorage.getItem('tab')),
+      activeKey: JSON.parse(localStorage.getItem('activeKey')),
+      backgroundColor: JSON.parse(localStorage.getItem('appBackgroundColor')),
+      textColor: JSON.parse(localStorage.getItem('appTextColor')),
+      fondSize: JSON.parse(localStorage.getItem('appFondSize')),
+      mode: JSON.parse(localStorage.getItem('appMode')),
+      theme: JSON.parse(localStorage.getItem('appTheme')),
+      basicAutocomplete: JSON.parse(localStorage.getItem('appBasicAutocomplete',true)),
+      liveAutocomplete: JSON.parse(localStorage.getItem('appLiveAutocomplete', true)),
+      gutter: JSON.parse(localStorage.getItem('appGutter', true)),
+      printMargin: JSON.parse(localStorage.getItem('appPrintMargin', true)),
+      activeLine: JSON.parse(localStorage.getItem('appActiveLine', true)),
+      snippets: JSON.parse(localStorage.getItem('appSnippets', true)),
+      lineNumber: JSON.parse(localStorage.getItem('appLineNumber', true)),
+      softTabs: JSON.parse(localStorage.getItem('appSoftTabs', true)),
+    }
+    for (let i = 0; i < this.state.tabs.length; i++) {
+      if (this.state.tabs[i].tabKey === this.state.activeKey) {
+        ipcRenderer.send('tabPath', this.state.tabs[i].filePath)
+      }
+    }
     this.addTab = this.addTab.bind(this)
     this.removeTab = this.removeTab.bind(this)
     this.onChange = this.onChange.bind(this)
@@ -53,20 +106,6 @@ export default class TabsPane extends React.Component {
     this.onCursorChange = this.onCursorChange.bind(this)
   }
 
-  get initialState() {
-    let tab = new TabData()
-    if (localStorage.getItem('tab')) {
-      return JSON.parse(localStorage.getItem('tab') || '{}')
-    }
-    else {
-      return {
-        tabs: [tab],
-        activeKey: tab.tabKey,
-        filePath: tab.filePath
-      }
-    }
-  }
-
   onCursorChange(value) {
     this.setState({
       cursor: value
@@ -75,7 +114,7 @@ export default class TabsPane extends React.Component {
 
   onChange(activeKey) {
     this.setState({
-      activeKey
+      activeKey: activeKey
     })
     var path
     for (let i = 0; i < this.state.tabs.length; i++) {
@@ -88,6 +127,7 @@ export default class TabsPane extends React.Component {
     } else {
       ipcRenderer.send('tabPath', path.toString())
     }
+    localStorage.setItem('activekey', JSON.stringify(activeKey))
   };
 
   handleChange(ev, arg) {
@@ -98,6 +138,7 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: key
     })
+    localStorage.setItem('activekey', JSON.stringify(key))
     ipcRenderer.send('tabPath', '')
   }
 
@@ -132,6 +173,7 @@ export default class TabsPane extends React.Component {
       tabs: newTabs,
       activeKey: newTab.tabKey
     })
+    localStorage.setItem('activekey', JSON.stringify(this.state.activeKey))
   }
 
   saveFile(ev, tabName, path) {
@@ -151,10 +193,10 @@ export default class TabsPane extends React.Component {
       tabs: newTabs
     })
     ipcRenderer.send('tabPath', '')
+    localStorage.setItem('activekey', JSON.stringify(newTabs.tabKey))
   };
 
   insertElement(ev, arg, path) {
-    console.log("am primit")
     let tab = this.state.tabs
     for (let i = 0; i < tab.length; i++) {
       if (tab[i].tabKey === this.state.activeKey) {
@@ -185,21 +227,46 @@ export default class TabsPane extends React.Component {
     ipcRenderer.on('OpenFile', this.openFile.bind(this))
     ipcRenderer.on('saveFile', this.saveFile.bind(this))
     ipcRenderer.on('insertElement', this.insertElement.bind(this))
+    ipcRenderer.on('appSettings', (ev, background, textColor, fontSize,
+      mode, theme, basicAutocomplete, liveAutocomplete, gutter, printMargin,
+      activeLine, snippets, lineNumber, softTabs) => {
+      this.setState({
+        backgroundColor: background,
+        textColor: textColor,
+        fondSize: fontSize.value,
+        mode: mode.value,
+        theme: theme.value,
+        basicAutocomplete: basicAutocomplete,
+        liveAutocomplete: liveAutocomplete,
+        gutter: gutter,
+        printMargin: printMargin,
+        activeLine: activeLine,
+        snippets: snippets,
+        lineNumber: lineNumber,
+        softTabs: softTabs
+      })
+      localStorage.setItem('appBackgroundColor', JSON.stringify(background))
+      localStorage.setItem('appTextColor', JSON.stringify(textColor))
+      localStorage.setItem('appFondSize', JSON.stringify(fontSize.value))
+      localStorage.setItem('appMode', JSON.stringify(mode.value))
+      localStorage.setItem('appTheme', JSON.stringify(theme.value))
+      localStorage.setItem('appBasicAutocomplete', JSON.stringify(theme.value))
+      localStorage.setItem('appLiveAutocomplete', JSON.stringify(theme.value))
+      localStorage.setItem('appGutter', JSON.stringify(theme.value))
+      localStorage.setItem('appPrintMargin', JSON.stringify(theme.value))
+      localStorage.setItem('appActiveLine', JSON.stringify(theme.value))
+      localStorage.setItem('appSnippets', JSON.stringify(theme.value))
+      localStorage.setItem('appLineNumber', JSON.stringify(theme.value))
+      localStorage.setItem('appSoftTabs', JSON.stringify(theme.value))
+    })
     setInterval(function () {
-      console.log("save")
-      localStorage.setItem('tab', JSON.stringify(this.state))
-    }.bind(this), 1000)
+      localStorage.setItem('tab', JSON.stringify(this.state.tabs))
+      localStorage.setItem('activeKey', JSON.stringify(this.state.activeKey))
+    }.bind(this), 3000)
   }
 
 
   TabPane() {
-    let style = {
-      overflow: 'hidden',
-      height: '100%',
-
-    }
-
-
 
     return this.state.tabs.map((tabb) => {
 
@@ -215,7 +282,7 @@ export default class TabsPane extends React.Component {
 
       return (
         <TabPane
-          tab={<a data-tip data-for='sadFace' ><AwesomeButton style={buttonStyle} bubbles={true}
+          tab={<a data-tip data-for='sadFace' ><AwesomeButton bubbles={true}
           >{tabb.tabTitle}
             <span
               style={{
@@ -225,7 +292,7 @@ export default class TabsPane extends React.Component {
                 left: 10
               }}
               onClick={this.removeTab.bind(this, tabb.tabKey)}
-            ><CloseButton size={20} color="#ffb90f" />
+            ><CloseButton size={20} color={"#ffb90f"} />
             </span>
 
           </AwesomeButton>
@@ -236,24 +303,24 @@ export default class TabsPane extends React.Component {
         >
           <AceEditor
             style={textAreaStyle}
-            mode={'xml'}
-            theme={'monokai'}
+            mode={this.state.mode}
+            theme={this.state.theme}
             name={tabb.tabKey}
-            fontSize={18}
+            fontSize={this.state.fondSize}
             onChange={this.onChangeText}
             onCursorChange={(value) => this.onCursorChange(value)}
             value={tabb.content}
-            showPrintMargin={true}
-            showGutter={true}
-            highlightActiveLine={true}
-            enableBasicAutocompletion={true}
-            enableLiveAutocompletion={true}
-            enableSnippets={false}
+            showPrintMargin={this.state.printMargin}
+            showGutter={this.state.gutter}
+            highlightActiveLine={this.state.activeLine}
+            enableBasicAutocompletion={this.state.basicAutocomplete}
+            enableLiveAutocompletion={this.state.liveAutocomplete}
+            enableSnippets={this.state.snippets}
             setOptions={{
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true,
-              enableSnippets: true,
-              showLineNumbers: true,
+              enableBasicAutocompletion: this.state.basicAutocomplete,
+              enableLiveAutocompletion: this.state.liveAutocomplete,
+              enableSnippets: this.state.snippets,
+              showLineNumbers: this.state.lineNumber,
               tabSize: 4,
             }}
             editorProps={{
@@ -264,7 +331,7 @@ export default class TabsPane extends React.Component {
       )
     }).concat([
       <TabPane
-        tab={<PlusButton onClick={(_element, next) => this.addTab(next)} color="#ffb90f" thickness={3} style={{ position: 'relative', cursor: 'pointer', top: 4 }} />}
+        tab={<PlusButton onClick={(_element, next) => this.addTab(next)} color={"#ffb90f"} thickness={3} style={{ position: 'relative', cursor: 'pointer', top: 4 }} />}
         disabled={true}
         key="__add"
       />,
@@ -285,7 +352,8 @@ export default class TabsPane extends React.Component {
   removeTab(t, e) {
     e.stopPropagation()
     if (this.state.tabs.length === 1) {
-      alert('de ce vrei sa stergi singurul tab, acum trebuie sa il inlocuiesc cu unul nou!');
+      this.state.tabs.pop()
+      this.addTab(e)
       return;
     }
     let foundIndex = 0;
@@ -315,11 +383,11 @@ export default class TabsPane extends React.Component {
   render() {
     let style = {
       height: "auto",
-      overflow:'none'
+      overflow: 'none'
     }
     let textAreaStyle = {
-      height: '92%',
-      overflow:'none'
+      height: '90%',
+      overflow: 'none'
     }
     return (
       <Tabs style={style}

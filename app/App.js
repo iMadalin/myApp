@@ -11,6 +11,7 @@ import Cons from './Console'
 import { NavButton } from 'react-svg-buttons'
 import buttonStyle from './ButtonStyle.css'
 import NavDropdownMenu from './dropdownMenu'
+import localStorage from 'localStorage'
 
 
 
@@ -25,6 +26,8 @@ export default class App extends React.Component {
         size: "large",
         navState: true,
         navWidth: 250,
+        backgroundColor: JSON.parse(localStorage.getItem('appBackgroundColor')),
+        textColor: JSON.parse(localStorage.getItem('appTextColor')),
     }
     this.handleResize = this.handleResize.bind(this)
     this.onClick = this.onClick.bind(this)
@@ -62,6 +65,14 @@ export default class App extends React.Component {
         path: result
       })
     })
+
+    ipcRenderer.on('appSettings', (ev,background,textColor) => {
+      console.log(background, textColor)
+      this.setState({
+        backgroundColor: background,
+        textColor: textColor
+      })
+    })
   }
 
   componentWillUnmount() {
@@ -72,10 +83,11 @@ export default class App extends React.Component {
     if (this.state.navState) {
       this.setState({
         navState: false,
-        navWidth: 80,
+        navWidth: 90,
         size: "auto",
         settingButton: <img src={'../img/setting-48.png'} style={{ position: 'absolute', cursor: 'pointer', top: 2, left: 2 }}></img>,
       })
+      localStorage.setItem('navState', JSON.stringify(false))
       ipcRenderer.send('NavIsColse', "")
     }
     else {
@@ -96,21 +108,10 @@ export default class App extends React.Component {
 
   render() {
     let style = {
-      background: '#373a47',
-      height: "100%"
+      background: this.state.backgroundColor,
+      height: "99.2%"
     }
 
-    let menuStyle = {
-      pozition: 'relative',
-      overflow: 'hidden',
-      marginTop: -50,
-      marginLeft: 55,
-      marginRight: 25,
-      color: "#ffb90f",
-      fontSize: 40,
-      textAlign: 'center',
-      textAlignVertical: 'center'
-    }
     let lineStyle = {
       pozition: 'relative',
       overflow: 'hidden',
@@ -142,8 +143,8 @@ export default class App extends React.Component {
           <div >
             <NavButton direction="right"
               opened={this.state.navState}
-              color="#ffb90f" thickness={3}
-              style={{ position: 'relative', cursor: 'pointer', top: 10, left: 10}}
+              color={"#ffb90f"} thickness={3}
+              style={{ position: 'relative', cursor: 'pointer', top: 10, left: 18}}
               onClick={this.onClick} />
             <div style={lineStyle}>_____________________</div>
             <NavDropdownMenu></NavDropdownMenu>

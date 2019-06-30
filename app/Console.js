@@ -1,8 +1,25 @@
 'use strict'
 
 import React from 'react'
+import { ipcRenderer } from 'electron'
 
 export default class Cons extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      backgroundColor: JSON.parse(localStorage.getItem('appBackgroundColor')),
+      textColor: JSON.parse(localStorage.getItem('appTextColor')),
+    }
+  }
+
+ componentDidMount() {
+  ipcRenderer.on('appSettings', (ev,background,textColor) => {
+    this.setState({
+      backgroundColor: background,
+      textColor: textColor
+    })
+  })
+ }
   render () {
     const divStyle = {
       flex: 1,
@@ -18,8 +35,8 @@ export default class Cons extends React.Component {
       height: '100%',
       width: '100%',
       resize: 'none',
-      background: '#373a47',
-      color: "#ffffff",
+      background: this.state.backgroundColor,
+      color: this.state.textColor,
       fontSize: "12pt"
       
     }
