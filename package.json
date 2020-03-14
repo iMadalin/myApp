@@ -39,7 +39,7 @@
     "@babel/preset-env": "^7.2.0",
     "@babel/preset-react": "^7.0.0",
     "ace-code-editor": "^1.2.3",
-    "acorn": "^6.0.0",
+    "acorn": "^6.4.1",
     "ajv": "^6.6.1",
     "animated": "^0.2.2",
     "babel": "^6.23.0",
